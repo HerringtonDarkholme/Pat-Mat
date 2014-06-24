@@ -1,21 +1,15 @@
+{isFunc, isArray, isPlainObject} = require('./util')
+
 class Matcher
   constructor: (@annotation, @unapply, @argList) ->
 
-  match: (other) ->
+  match: (other, assign) ->
     annotation = @annotation
     if @unapply?
-      return @unapply(other, @argList)
+      return @unapply(other, @argList, assign)
 
     ret = []
-    for param, index in @argList
-      matching = deepMatch(param, other[annotation[index]])
-      if matching?
-        ret.concat(matching)
-      else
-        return null
-    ret
 
-deepMatch = (param, obj) ->
 
 module.exports =  {
   Matcher
