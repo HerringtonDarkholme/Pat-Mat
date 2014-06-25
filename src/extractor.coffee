@@ -40,7 +40,7 @@ class Extractor
       @unapply = annotation
 
   link: (argList) ->
-    new Matcher(@annotation, @unapply, argList)
+    new Matcher(@annotation, @unapply, argList, @ctor)
 
 
 extract = (ctor) ->

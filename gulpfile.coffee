@@ -1,4 +1,5 @@
 gulp = require 'gulp'
+gutil = require 'gulp-util'
 coffee = require 'gulp-coffee'
 changed = require 'gulp-changed'
 mocha = require 'gulp-mocha'
@@ -10,7 +11,7 @@ TEST = './test/*.coffee'
 gulp.task 'compile', ->
   gulp.src(SRC)
     .pipe(changed DEST)
-    .pipe(coffee(bare: true))
+    .pipe(coffee(bare: true).on('error', gutil.log))
     .pipe(gulp.dest DEST)
 
 gulp.task 'default', ['compile'], ->

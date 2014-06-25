@@ -10,6 +10,7 @@
     "mocha": "^1.20.1",
     "better-assert": "^1.0.0",
     "gulp-changed": "^0.4.0",
-    "gulp-mocha": "^0.4.1"
+    "gulp-mocha": "^0.4.1",
+    "gulp-util": "^2.2.17"
   }
 }
