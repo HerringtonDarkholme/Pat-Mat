@@ -1,6 +1,6 @@
-at = (pattern, matched) ->
-
-to = (pattern, matched) ->
+Is = (pattern, matched) ->
+As = (pattern, matched) ->
+On = (pattern, matched) ->
 
 
 class Injector

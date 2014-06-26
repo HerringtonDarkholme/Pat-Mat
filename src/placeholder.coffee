@@ -3,26 +3,26 @@
 #   parameter: $
 #   quote: q
 
-_ = wildcard = new ->
-$$ = paramSeq = new ->
-
 class Parameter
   constructor: (@pattern, @guard) ->
+    @index = Parameter._index++
     if not @guard?
       @guard = -> true
 
   getKey: () -> null
   askGuard: (that, args...) => @guard.apply(that, args)
   @getKey = @::getKey
+  @reset = -> @._index = 0
+  @_index = 0
 
 
-class IndexParameter extends Parameter
-  constructor: (@index, pattern, guard) ->
-    unless typeof @index is 'number'
-      throw new TypeError('Indexed Parameter need number')
-    super(pattern, guard)
-
-  getKey: () -> @index
+# class IndexParameter extends Parameter
+#   constructor: (@index, pattern, guard) ->
+#     unless typeof @index is 'number'
+#       throw new TypeError('Indexed Parameter need number')
+#     super(pattern, guard)
+#
+#   getKey: () -> @index
 
 
 class NamedParameter extends Parameter
@@ -34,43 +34,49 @@ class NamedParameter extends Parameter
   getKey: () -> @name
 
 
+class Quote
+  constructor: (@obj) ->
+
+class Wildcard
+  constructor: (@pattern) ->
+
+_ = wildcard = (pattern) -> new Wildcard(pattern)
+
+$$ = paramSeq = new ->
+
+q = quote = (obj) -> new Quote(obj)
+
 $ = parameter = (args...) -> switch args.length
+  when 0
+    # alias to $(_)
+    new Parameter(_)
   when 1
     # $({key1: String, key2: String})
     new Parameter(args[0])
   when 2
-    # named/index $(0, String), $('name', Array)
+    # named/guarded $(String, guardFunc), $('name', Array)
     type = args[0]
-    if typeof type is 'number'
-      new IndexParameter(type, args[1])
-    else if typeof type is 'string'
+    if typeof type is 'string'
       new NamedParameter(type, args[1])
     else
-      new Parameter(args[1])
+      new Parameter(args...)
   when 3
     # name, pattern, guard
     # $(0, Number, function(p) {return p % 2 === 0})
     # $(_, Number, (p) -> p % 2 === 0)
     type = args[0]
-    if typeof type is 'number'
-      new IndexParameter(args...)
-    else if typeof type is 'string'
+    if typeof type is 'string'
       new NamedParameter(args...)
     else
       new Parameter(args[1], args[2])
   else
     throw new RangeError('wrong number of arguments')
 
-class Quote
-  constructor: (@obj) ->
-
-q = quote = (obj) -> new Quote(obj)
-
 module.exports = {
   wildcard
   paramSeq
   parameter
   Parameter
-  IndexParameter
+  Wildcard
   NamedParameter
 }

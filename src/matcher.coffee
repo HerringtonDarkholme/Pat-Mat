@@ -11,6 +11,7 @@
   paramSeq
   Parameter
   wildcard
+  Wildcard
   Quote
 } = require('./placeholder')
 
@@ -29,30 +30,54 @@ class Matcher
   defaultUnapply: (other, assign) ->
     if not (other instanceof @ctor)
       return false
-    for ann, index in @annotation
-      matching = deepMatch(argList[index], other[ann], assign)
+    for ann, i in @annotation
+      matching = deepMatch(argList[i], other[ann], assign)
       if not matching
         return false
-    return true
+    true
 
 
 deepMatch = (expr, obj, assign) -> switch
   when expr is wildcard
     true
+  when expr instanceof Wildcard
+    # don't match pattern inside Wildcard
+    # only for incremental assigner
+    deepMatch(expr.pattern, obj, ->)
   when expr instanceof Quote
     obj is expr.obj
-  when isPrimitive(expr)
-    obj is expr or (isNaN(obj) and isNaN(expr))
+  when expr instanceof Matcher
+    expr.unapply(obj, assign)
+  when expr instanceof RegExp
+    matchReg(expr, obj, assign)
   when expr instanceof Parameter
     matchParam(expr, obj, assign)
+  when isPrimitive(expr)
+    matchPrimitive(expr, obj)
   when isPlainObject(expr)
     matchObject(expr, obj, assign)
   when isArray(expr)
     matchArray(expr, obj, assign)
   when isFunc(expr)
+    # must be the last
     matchFunc(expr, obj, assign)
-  when expr instanceof Matcher
-    expr.unapply(obj, assign)
+  else
+    false
+
+matchPrimitive = (expr, obj) ->
+  # handle NaN typeof NaN === 'number'
+  if isNaN(obj) and isNaN(expr)
+    true
+  else if obj is expr
+    true
+  else
+    false
+
+matchReg = (expr, obj, assign) ->
+  ret = expr.exec(obj)
+  if ret
+    assign(expr, ret)
+    true
   else
     false
 
@@ -61,8 +86,18 @@ matchParam = (expr, obj, assign) ->
   deepMatch(expr.pattern, obj, assign)
 
 matchFunc = (expr, obj, assign) ->
-  isMatch = obj instanceof expr
-  assign(expr, obj) if isMatch
+  isMatch = switch expr
+    # match primitive value
+    when Number
+      typeof obj is 'number'
+    when String
+      typeof obj is 'string'
+    when Boolean
+      typeof obj is 'boolean'
+    else
+      obj instanceof expr
+  if isMatch
+    assign(expr, obj)
   isMatch
 
 matchArray = (expr, obj, assign) ->
@@ -72,15 +107,18 @@ matchArray = (expr, obj, assign) ->
 
   for v, pre in expr
     break if v is paramSeq
-    return false if not deepMatch(v, obj[pre], assign)
+    if not deepMatch(v, obj[pre], assign)
+      return false
 
   len = obj.length
   for v, post in expr by -1
     break if v is paramSeq
-    return false if not deepMatch(v, obj[--len], assign)
+    if not deepMatch(v, obj[--len], assign)
+      return false
 
   if (expr[pre] is paramSeq)
-    assign(paramSeq, obj.slice(pre, len)) if pre is post
+    if pre is post
+      assign(paramSeq, obj.slice(pre, len))
   true
 
 matchObject = (expr, obj, assign) ->
