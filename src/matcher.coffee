@@ -50,7 +50,7 @@ deepMatch = (expr, obj, assign) -> switch
     expr.unapply(obj, assign)
   when expr instanceof RegExp
     matchReg(expr, obj, assign)
-  when expr instanceof Parameter
+  when expr instanceof Parameter, expr is parameter
     matchParam(expr, obj, assign)
   when isPrimitive(expr)
     matchPrimitive(expr, obj)
@@ -74,6 +74,8 @@ matchPrimitive = (expr, obj) ->
     false
 
 matchReg = (expr, obj, assign) ->
+  if typeof obj isnt 'string'
+    return false
   ret = expr.exec(obj)
   if ret
     assign(expr, ret)

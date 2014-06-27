@@ -53,12 +53,12 @@ extract = (ctor) ->
   F extends ctor
   F
 
-class Point
-  constructor: (@x, @y) ->
-  @unapply = ['sss', 'ssss']
-P = extract Point
-console.log (new Extractor(Point)).annotation
-matcher = P(2,3)
+# class Point
+#   constructor: (@x, @y) ->
+#   @unapply = ['sss', 'ssss']
+# P = extract Point
+# console.log (new Extractor(Point)).annotation
+# matcher = P(2,3)
 
 module.exports = {
   Extractor

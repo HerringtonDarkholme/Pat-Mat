@@ -12,7 +12,7 @@ class Parameter
   getKey: () -> null
   askGuard: (that, args...) => @guard.apply(that, args)
   @getKey = @::getKey
-  @reset = -> @._index = 0
+  @reset = => @._index = 0
   @_index = 0
 
 

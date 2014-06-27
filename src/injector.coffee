@@ -1,26 +1,70 @@
-Is = (pattern, matched) ->
-As = (pattern, matched) ->
-On = (pattern, matched) ->
+{
+  isRegExp
+  isFunc
+  objToArray
+} = require('./util')
 
+{
+  assignmentFactory
+  incrementalCounter
+  indexedCounter
+  nominalCounter
+} = require('./counter')
 
 class Injector
-  constructor: (@assign, @pattern, @matched) ->
-    @cache = {}
+  constructor: (@pattern) ->
+    @counterFunc = null
+    @cache = null
+    @assigner = null
+    @defined = false
   isDefinedAt: (ele) ->
     @cache = {}
-    deepMatch(@pattern, ele, @assign)
-  inject: ->
-    @matched()
+    @assigner = assignmentFactory(@cache, @counterFunc)
+    @defined = deepMatch(@pattern, ele, @assign)
+    @defined
+  inject: (ele, action) ->
+    if not @defined
+      throw new Error('cannot call matched function when unmatched')
+    action.apply(ele, objToArray(@cache))
+  assign: (expr, obj) =>
+    unless isFunc(expr) or isRegExp(expr)
+      @assigner(expr, obj)
 
 
-decorateObjectPrototype = (name='Match') ->
-  Object::[name] = (args...) ->
-    Match(args...)(this)
+class IncrementalInjector extends Injector
+  constructor: (pattern) ->
+    super
+    @counterFunc = incrementalCounter
 
-Match = (args...) -> (ele) ->
-  for injector in args
-    unless injector instanceof Injector
-      throw new TypeError('need at/to clause')
-    if injector.isDefinedAt(ele)
-      return injector.inject()
-  null
+  assign: (expr, obj) =>
+    if isRegExp(expr)
+      for group in obj
+        @assigner(RegExp, group)
+    else
+      @assigner(expr, obj)
+
+class IndexedInjector extends Injector
+  constructor: (pattern) ->
+    super
+    @counterFunc = indexedCounter
+
+class NominalInjector extends Injector
+  constructor: (pattern) ->
+    super
+    @counterFunc = nominalCounter
+  inject: (ele, action) ->
+    @cache = [@cache]
+    super
+
+class PatternMatcher
+  constructor: (@patterns, @action, @injectCtor) ->
+    @injector = undefined
+  hasMatch: (ele)->
+    for p in patterns
+      injector = new (@injectCtor)(p)
+      if injector.isDefinedAt(ele)
+        @injector = injector
+        return true
+    false
+  inject: (ele) ->
+    @injector.inject(ele, @action)

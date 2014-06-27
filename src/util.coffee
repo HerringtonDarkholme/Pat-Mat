@@ -10,6 +10,8 @@ isPrimitive = (obj) -> switch typeof obj
   else
     true
 
+isRegExp = (o) -> o instanceof RegExp
+
 isPlainObject = (o) ->
   if !o or (typeof o isnt 'object') or  o.nodeType or o.window is o
     return false
@@ -25,10 +27,24 @@ isPlainObject = (o) ->
   for key of o then
   return key is undefined || hasOwn.call(o, key)
 
+objToArray = (obj) ->
+  if isArray(obj)
+    obj
+  else
+    ret = ( [k,v] for k, v of obj )
+    ret = ret.sort((a, b) -> switch
+      when a[0] > b[0] then 1
+      when a[0] < b[0] then -1
+      else 0
+    )
+    e[1] for e in ret
+
 module.exports = {
-  isPrimitive
+  hasOwn
   isArray
   isFunc
   isPlainObject
-  hasOwn
+  isPrimitive
+  isRegExp
+  objToArray
 }
