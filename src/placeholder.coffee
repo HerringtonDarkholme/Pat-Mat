@@ -9,9 +9,8 @@ class Parameter
     if not @guard?
       @guard = -> true
 
-  getKey: () -> null
-  askGuard: (that, args...) => @guard.apply(that, args)
-  @getKey = @::getKey
+  getKey: -> null
+  askGuard: (that, args...) -> @guard.apply(that, args)
   @reset = => @._index = 0
   @_index = 0
 
@@ -35,7 +34,7 @@ class NamedParameter extends Parameter
 
 
 class Quote
-  constructor: (@obj) ->
+  constructor: (@pattern) ->
 
 class Wildcard
   constructor: (@pattern) ->
@@ -43,6 +42,7 @@ class Wildcard
 _ = wildcard = (pattern) -> new Wildcard(pattern)
 
 $$ = paramSeq = new ->
+__ = wildcardSeq = new ->
 
 q = quote = (obj) -> new Quote(obj)
 
@@ -72,11 +72,16 @@ $ = parameter = (args...) -> switch args.length
   else
     throw new RangeError('wrong number of arguments')
 
+parameter.getKey = -> null
+
 module.exports = {
-  wildcard
+  NamedParameter
+  Parameter
+  Quote
+  Wildcard
   paramSeq
   parameter
-  Parameter
-  Wildcard
-  NamedParameter
+  quote
+  wildcard
+  wildcardSeq
 }

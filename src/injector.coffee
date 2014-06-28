@@ -11,21 +11,28 @@
   nominalCounter
 } = require('./counter')
 
+Parameter = require('./placeholder').Parameter
+
 class Injector
   constructor: (@pattern) ->
     @counterFunc = null
     @cache = null
+    @unnamed = []
     @assigner = null
     @defined = false
   isDefinedAt: (ele) ->
     @cache = {}
-    @assigner = assignmentFactory(@cache, @counterFunc)
+    @unnamed = []
+    @assigner = assignmentFactory(@cache, @unnamed,@counterFunc)
     @defined = deepMatch(@pattern, ele, @assign)
     @defined
   inject: (ele, action) ->
     if not @defined
       throw new Error('cannot call matched function when unmatched')
-    action.apply(ele, objToArray(@cache))
+    action.apply({
+      m: ele
+      unnamed: @unnamed
+    }, objToArray(@cache))
   assign: (expr, obj) =>
     unless isFunc(expr) or isRegExp(expr)
       @assigner(expr, obj)
@@ -64,7 +71,9 @@ class PatternMatcher
       injector = new (@injectCtor)(p)
       if injector.isDefinedAt(ele)
         @injector = injector
+        Parameter.reset()
         return true
+    Parameter.reset()
     false
   inject: (ele) ->
     @injector.inject(ele, @action)

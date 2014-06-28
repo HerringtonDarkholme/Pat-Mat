@@ -7,12 +7,13 @@
 } = require('./util')
 
 {
-  parameter
-  paramSeq
   Parameter
-  wildcard
-  Wildcard
   Quote
+  Wildcard
+  paramSeq
+  parameter
+  wildcard
+  wildcardSeq
 } = require('./placeholder')
 
 class Matcher
@@ -45,7 +46,7 @@ deepMatch = (expr, obj, assign) -> switch
     # only for incremental assigner
     deepMatch(expr.pattern, obj, ->)
   when expr instanceof Quote
-    obj is expr.obj
+    obj is expr.pattern
   when expr instanceof Matcher
     expr.unapply(obj, assign)
   when expr instanceof RegExp
@@ -108,19 +109,21 @@ matchArray = (expr, obj, assign) ->
   return false unless isArray(obj)
 
   for v, pre in expr
-    break if v is paramSeq
+    break if v is paramSeq or v is wildcardSeq
     if not deepMatch(v, obj[pre], assign)
       return false
 
   len = obj.length
   for v, post in expr by -1
-    break if v is paramSeq
+    break if v is paramSeq or v is wildcardSeq
     if not deepMatch(v, obj[--len], assign)
       return false
 
   if (expr[pre] is paramSeq)
     if pre is post
       assign(paramSeq, obj.slice(pre, len))
+    else
+      throw new Error('multiple parameter sequence is not allowed')
   true
 
 matchObject = (expr, obj, assign) ->

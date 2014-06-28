@@ -5,15 +5,14 @@
 
 # given an expression, return how parameters are arranged
 # (acc, cnt) -> (expr, val) -> void
-assignmentFactory = (accumulation, counterFunc) ->
-  accumulation.__unnamed__ = []
+assignmentFactory = (accumulation, unnamed, counterFunc) ->
   counter = counterFunc()
   (expression, value) ->
     count = counter(expression)
     if count?
       accumulation[count] = value
     else
-      accumulation.__unnamed__.push(value)
+      unnamed.push(value)
 
 incrementalCounter = ->
   inc = 0
