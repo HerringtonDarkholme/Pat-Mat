@@ -61,19 +61,17 @@ $ = parameter = (args...) -> switch args.length
 parameter.getKey = -> null
 
 class Guardian
-  constructor: (@guardFunc) ->
-  ask: (that, args) ->
-    @guardFunc.apply(that, args)
+  constructor: (@guard) ->
 
-If = (func) -> new Guardian(func)
+guard = If = (func) -> new Guardian(func)
 
 module.exports = {
   Guardian
-  If
   NamedParameter
   Parameter
   Quote
   Wildcard
+  guard
   paramSeq
   parameter
   quote

@@ -1,4 +1,5 @@
 {
+  isArray
   isRegExp
   isFunc
   objToArray
@@ -11,7 +12,11 @@
   nominalCounter
 } = require('./counter')
 
-Parameter = require('./placeholder').Parameter
+{
+  Parameter
+  Guardian
+} = require('./placeholder').Parameter
+
 
 class Injector
   constructor: (@pattern) ->
@@ -60,19 +65,32 @@ class NominalInjector extends Injector
     super
     @counterFunc = nominalCounter
   inject: (ele, action) ->
-    @cache = [@cache]
+    c = @cache
+    @cache = if isArray(c) then c else [c]
     super
 
 class PatternMatcher
   constructor: (@patterns, @action, @injectCtor) ->
     @injector = undefined
   hasMatch: (ele)->
-    for p in patterns
-      injector = new (@injectCtor)(p)
-      if injector.isDefinedAt(ele)
+    # handle guarded pattern
+    ret = false
+    ps = @patterns
+    injectCtor = @injectCtor
+    if (ps.length is 2 and
+    (guardian = ps[1]) instanceof Guardian)
+      injector = new injectCtor(ps[0])
+      if (injector.isDefinedAt(ele) and
+      injector.inject(ele, guardian.guard))
         @injector = injector
-        Parameter.reset()
-        return true
+        ret = true
+    else
+      for p in ps
+        injector = new injectCtor(p)
+        if injector.isDefinedAt(ele)
+          @injector = injector
+          ret = true
+          break
     Parameter.reset()
     false
   inject: (ele) ->

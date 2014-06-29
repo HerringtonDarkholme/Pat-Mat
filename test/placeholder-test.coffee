@@ -1,10 +1,12 @@
 assert = require 'assert'
 
 {
+  Guardian
   NamedParameter
   Parameter
-  Wildcard
   Quote
+  Wildcard
+  guard
   paramSeq
   parameter
   quote
@@ -19,14 +21,6 @@ describe 'Placeholder', ->
     param = new Parameter(String)
     assert param.pattern is String
     assert param.getKey() is null
-    Parameter.reset()
-
-  it 'Parameter with guard should show whether match', ->
-    guard = (s) ->
-      s.length > 4 and !!@.m
-    param = new Parameter(String, guard)
-    injected = {m: undefined, unnamed: undefined}
-    injected.m = true
     Parameter.reset()
 
   it 'Parameter counter should increment', ->
@@ -60,6 +54,12 @@ describe 'Placeholder', ->
     assert quotePattern instanceof Quote
     assert quotePattern.pattern is pattern
 
+  it 'guard function should return Guardian instance', ->
+    g = guard((n) -> @m > 0 and n < 4)
+    action = g.guard
+    assert g instanceof Guardian
+    assert action.apply({m: 3}, [3]) is true
+    assert action.apply({m: 5}, [5]) is false
 
   describe '$ should behave polymorphically', ->
     $ = parameter
