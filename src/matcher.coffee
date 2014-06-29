@@ -31,6 +31,7 @@ class Matcher
   defaultUnapply: (other, assign) ->
     if not (other instanceof @ctor)
       return false
+    argList = @argList
     for ann, i in @annotation
       matching = deepMatch(argList[i], other[ann], assign)
       if not matching
