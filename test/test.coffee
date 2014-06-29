@@ -2,6 +2,7 @@
 
 require './extractor-test.coffee'
 require './placeholder-test.coffee'
+require './counter-test.coffee'
 
 
 {

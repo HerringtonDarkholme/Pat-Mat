@@ -2,6 +2,7 @@
   parameter
   Parameter
 } = require('./placeholder')
+isFunc = require('./util').isFunc
 
 # given an expression, return how parameters are arranged
 # (acc, cnt) -> (expr, val) -> void

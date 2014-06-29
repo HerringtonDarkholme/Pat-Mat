@@ -52,6 +52,7 @@ describe 'Placeholder', ->
     assert.throws(
       (-> new NamedParameter(123, String)),
       TypeError)
+    Parameter.reset()
 
   it 'wildcard function should return Wildcard instance', ->
     pattern = {a: 1, b: 2}
@@ -73,10 +74,12 @@ describe 'Placeholder', ->
       $0 = $()
       assert $0 instanceof Parameter
       assert $0.pattern is wildcard
+      Parameter.reset()
 
     it 'arity 1: pattern', ->
       $1 = $(String)
       assert $1.pattern is String
+      Parameter.reset()
 
     it 'arity 2: guarded or named', ->
       $2 = $(String, -> false)
@@ -89,6 +92,7 @@ describe 'Placeholder', ->
       assert $2.pattern is String
       assert $2.getKey() is 'testname'
       assert $2 instanceof NamedParameter
+      Parameter.reset()
 
     it 'arity 3: NamedParameter with guard', ->
       $3 = $('testname', String, -> false)
@@ -96,3 +100,5 @@ describe 'Placeholder', ->
       assert $3.pattern is String
       assert $3.getKey() is 'testname'
       assert $3 instanceof NamedParameter
+      Parameter.reset()
+
