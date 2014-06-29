@@ -39,7 +39,36 @@ objToArray = (obj) ->
     )
     e[1] for e in ret
 
+
+# annotation util
+FN_ARGS = ///
+  ^function # function
+  \s*       # optional white
+  [^\(]*    # function name
+  \(        # left paren
+  \s*
+  ([^\)]*)  #params
+  \)        # right paren
+///m
+
+COMMENT = ///
+  \/\*[\s\S]*?\*\/ # block comment
+  | \/\/.*$        # linewise comment
+///mg
+
+FN_ARG_SPLIT = /,/
+FN_ARG = /^\s*(\S+)\s*$/mg
+
+annotate = (func) ->
+  if not isFunc(func)
+    # return empty array if func is'nt a constructor
+    return []
+  fnText = func.toString().replace(COMMENT, '')
+  params = fnText.match(FN_ARGS)[1]
+  (param.trim() for param in params.split(FN_ARG_SPLIT))
+
 module.exports = {
+  annotate
   hasOwn
   isArray
   isFunc

@@ -19,7 +19,6 @@ describe 'Placeholder', ->
     param = new Parameter(String)
     assert param.pattern is String
     assert param.getKey() is null
-    assert param.askGuard({}, 123) is true
     Parameter.reset()
 
   it 'Parameter with guard should show whether match', ->
@@ -27,9 +26,7 @@ describe 'Placeholder', ->
       s.length > 4 and !!@.m
     param = new Parameter(String, guard)
     injected = {m: undefined, unnamed: undefined}
-    assert param.askGuard(injected, 'test_string') is false
     injected.m = true
-    assert param.askGuard(injected, 'test_string') is true
     Parameter.reset()
 
   it 'Parameter counter should increment', ->
@@ -42,12 +39,9 @@ describe 'Placeholder', ->
     assert Parameter._index is 0
 
   it 'NamedParameter should store name', ->
-    guard = (s) -> s.length > 2
-    np = new NamedParameter('test', String, guard)
+    np = new NamedParameter('test', String)
     assert np.getKey() is 'test'
     assert np.pattern is String
-    assert np.askGuard({}, 'longlong') is true
-    assert np.askGuard({}, '') is false
     assert Parameter._index is 1
     assert.throws(
       (-> new NamedParameter(123, String)),
@@ -81,24 +75,9 @@ describe 'Placeholder', ->
       assert $1.pattern is String
       Parameter.reset()
 
-    it 'arity 2: guarded or named', ->
-      $2 = $(String, -> false)
-      assert $2.askGuard({}, '') is false
-      assert $2.pattern is String
-      assert $2.getKey() is null
-      assert not ($2 instanceof NamedParameter)
+    it 'arity 2: named', ->
       $2 = $('testname', String)
-      assert $2.askGuard({}, '') is true
       assert $2.pattern is String
       assert $2.getKey() is 'testname'
       assert $2 instanceof NamedParameter
       Parameter.reset()
-
-    it 'arity 3: NamedParameter with guard', ->
-      $3 = $('testname', String, -> false)
-      assert $3.askGuard({}, '') is false
-      assert $3.pattern is String
-      assert $3.getKey() is 'testname'
-      assert $3 instanceof NamedParameter
-      Parameter.reset()
-

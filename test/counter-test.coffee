@@ -80,15 +80,11 @@ describe 'Counter', ->
     $ = parameter
     it 'add counter for NamedParameter', ->
       a = counter($('name1', String))
-      b = counter($('name2', [], -> false))
       assert a is 'name1'
-      assert b is 'name2'
       Parameter.reset()
     it 'otherwise null', ->
       a = counter($(String))
-      b = counter($(Array, -> true))
-      c = counter(a: 1, b: 2)
+      b = counter(a: 1, b: 2)
       assert a is null
       assert b is null
-      assert c is null
       Parameter.reset()

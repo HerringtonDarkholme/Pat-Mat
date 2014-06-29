@@ -1,6 +1,7 @@
 {
   parameter
   Parameter
+  NamedParameter
 } = require('./placeholder')
 isFunc = require('./util').isFunc
 
@@ -18,6 +19,8 @@ assignmentFactory = (accumulation, unnamed, counterFunc) ->
 incrementalCounter = ->
   inc = 0
   (expression) -> switch
+    when expression instanceof NamedParameter and expression.name is null
+      null
     when isFunc(expression)
       inc++
     when expression is parameter
@@ -28,6 +31,8 @@ incrementalCounter = ->
 
 indexedCounter = ->
   (expression) -> switch
+    when expression instanceof NamedParameter and expression.name is null
+      null
     when expression instanceof Parameter
       expression.index
     else null

@@ -11,18 +11,13 @@ Point = extract class Point
 
 Circle = extract class Circle extends Point
   constructor: (@r) ->
-  @unapply: (other, argList, assign) ->
-    r = argList[0]
+  @unapply: (other) ->
     x = other.x
     y = other.y
-    if r*r is x*x + y*y
-      assign(r, r)
-      true
-    else
-      false
+    { r: Math.sqrt(x*x + y*y) }
 
 describe 'Matcher', ->
-  it 'should use defaultUnapply if unprovided', ->
+  it 'default unapply should check constructor', ->
     annotation = ['x', 'y']
     argList = [3, 4]
     ctor = Point
@@ -41,7 +36,7 @@ describe 'Matcher', ->
     assert matcher.unapply(pp, ->) is false
     assert matcher.unapply({x: 3, y: 4}, ->) is false
 
-  it 'should use customUnapply if provided', ->
+  it 'should use transform if provided', ->
     matcher = Circle(5)
     p = new Point(3, 4)
     pp = new Point(4, 5)

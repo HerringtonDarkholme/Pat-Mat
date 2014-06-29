@@ -4,6 +4,7 @@
   isPlainObject
   isPrimitive
   hasOwn
+  annotate
 } = require('./util')
 
 {
@@ -17,19 +18,23 @@
 } = require('./placeholder')
 
 class Matcher
-  constructor: (@annotation, @customUnapply, @argList, @ctor) ->
+  constructor: (annotation, transform, argList, ctor) ->
+    @annotation = annotation or
+      (ctor and annotate(ctor))
+    @ctor = ctor or Object
+    @transform = transform
+    @argList = argList
 
   # unapply:: ctorInstance -> AssignFunc -> Boolean
   # return whether match
   unapply: (other, assign) ->
-    annotation = @annotation
-    if @customUnapply?
-       @customUnapply(other, @argList, assign)
-    else
-       @defaultUnapply(other, @argList, assign)
-
-  defaultUnapply: (other, assign) ->
-    if not (other instanceof @ctor)
+    # apply transformation if applied
+    # or it must be an instanceof @ctor
+    if @transform?
+      other = @transform(other)
+      return false unless other?
+      @annotation = (k for k of other) unless @annotation
+    else if not (other instanceof @ctor)
       return false
     argList = @argList
     for ann, i in @annotation
@@ -129,6 +134,7 @@ matchArray = (expr, obj, assign) ->
 
 matchObject = (expr, obj, assign) ->
   # skip obj type test for structrual typing
+  # A.K.A duck typing :)
   for key, value of expr when hasOwn.call(expr, key)
     if not deepMatch(value, obj[key], assign)
       return false
