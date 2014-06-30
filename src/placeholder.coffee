@@ -51,7 +51,11 @@ $ = parameter = (args...) -> switch args.length
     new Parameter(_)
   when 1
     # $({key1: String, key2: String})
-    new Parameter(args[0])
+    type = args[0]
+    if typeof type is 'string'
+      new NamedParameter(type, wildcard)
+    else
+      new Parameter(type)
   when 2
     # NamedParameter $('name', Array)
     new NamedParameter(args...)

@@ -125,3 +125,56 @@ describe 'Matcher', ->
       assert deepMatch(Circle($), p, assign)
       assert exprs.shift() is $
       assert values.shift() is 5
+
+    it 'match Regex and assign matched array', ->
+      mailReg = /(.+?)@([^\.]+)\..+/
+      exprs = []
+      values = []
+      assign = (expr, obj) ->
+        exprs.push(expr)
+        values.push(obj)
+      assert deepMatch(mailReg, 'bob@mail.com', assign)
+      assert exprs.shift() is mailReg
+      v = values.shift()
+      assert v[0] is 'bob@mail.com'
+      assert v[1] is 'bob'
+      assert v[2] is 'mail'
+      assert deepMatch(mailReg, 'xxx', assign) is false
+      assert exprs.length is 0
+      assert values.length is 0
+
+    it 'match parameter', ->
+      exprs = []
+      values = []
+      assign = (expr, obj) ->
+        exprs.push(expr)
+        values.push(obj)
+      assert deepMatch($, 5, assign)
+      assert exprs.shift() is $
+      assert values.shift() is 5
+      assert deepMatch($(String), 5, assign) is false
+      # unmatch does not clean exprs
+      exprs.pop()
+      values.pop()
+      assert deepMatch($(String), 'string', assign)
+      assert exprs.shift().pattern is String
+      assert values.shift() is 'string'
+
+    it 'match primitive', ->
+      assign = -> throw 'should not come here'
+      assert deepMatch(5, 5, ->)
+      assert deepMatch('5', 5, ->) is false
+      assert deepMatch(NaN, NaN, ->)
+      assert deepMatch(q(NaN), NaN, ->) is false
+      assert deepMatch(undefined, undefined, ->)
+      assert deepMatch(null, undefined, ->) is false
+
+    it 'match plain object', ->
+      matched = {}
+      assign = (expr, obj) ->
+        matched[expr.getKey()] = obj
+      p = new Point(3, 4)
+      assert deepMatch({x: 3, y: 4}, p, assign)
+      assert deepMatch({x: $('x'), y: $('y')}, p, assign)
+      assert matched.x is 3
+      assert matched.y is 4
