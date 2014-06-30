@@ -58,7 +58,7 @@ $ = parameter = (args...) -> switch args.length
   else
     throw new RangeError('wrong number of arguments')
 
-parameter.getKey = -> null
+parameter.pattern = wildcard
 
 class Guardian
   constructor: (@guard) ->
