@@ -1,9 +1,9 @@
 isFunc = require('./util').isFunc
 {
-  PatternMatcher
   IncrementalInjector
   IndexedInjector
   NominalInjector
+  PatternMatcher
 } = require('./injector')
 
 validatePatterns = (args) ->

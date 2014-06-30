@@ -17,6 +17,7 @@
   Guardian
 } = require('./placeholder').Parameter
 
+deepMatch = require('./matcher').deepMatch
 
 class Injector
   constructor: (@pattern) ->
@@ -95,3 +96,10 @@ class PatternMatcher
     false
   inject: (ele) ->
     @injector.inject(ele, @action)
+
+module.exports = {
+  IncrementalInjector
+  IndexedInjector
+  NominalInjector
+  PatternMatcher
+}
