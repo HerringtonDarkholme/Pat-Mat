@@ -15,7 +15,7 @@
 {
   Parameter
   Guardian
-} = require('./placeholder').Parameter
+} = require('./placeholder')
 
 deepMatch = require('./matcher').deepMatch
 
@@ -27,10 +27,11 @@ class Injector
     @assigner = null
     @defined = false
   isDefinedAt: (ele) ->
-    @cache = {}
-    @unnamed = []
+    @clear()
     @assigner = assignmentFactory(@cache, @unnamed,@counterFunc)
     @defined = deepMatch(@pattern, ele, @assign)
+    if not @defined
+      @clear()
     @defined
   inject: (ele, action) ->
     if not @defined
@@ -42,6 +43,9 @@ class Injector
   assign: (expr, obj) =>
     unless isFunc(expr) or isRegExp(expr)
       @assigner(expr, obj)
+  clear: ->
+    @cache = {}
+    @unnamed = []
 
 
 class IncrementalInjector extends Injector
@@ -71,29 +75,44 @@ class NominalInjector extends Injector
     super
 
 class PatternMatcher
-  constructor: (@patterns, @action, @injectCtor) ->
-    @injector = undefined
-  hasMatch: (ele)->
+  constructor: (patterns, action, injectCtor) ->
+    # intern patterns into injector
+    @injector = null
+    @guard = null
+    @action = action
+    @injectors = []
+
     # handle guarded pattern
-    ret = false
-    ps = @patterns
-    injectCtor = @injectCtor
-    if (ps.length is 2 and
-    (guardian = ps[1]) instanceof Guardian)
-      injector = new injectCtor(ps[0])
-      if (injector.isDefinedAt(ele) and
-      injector.inject(ele, guardian.guard))
-        @injector = injector
-        ret = true
+    if (patterns.length is 2 and
+    (guardian = patterns[1]) instanceof Guardian)
+      @injectors.push(new injectCtor(patterns[0]))
+      @guard = guardian.guard
     else
-      for p in ps
-        injector = new injectCtor(p)
-        if injector.isDefinedAt(ele)
-          @injector = injector
-          ret = true
-          break
+      for p in patterns
+        @injectors.push(new injectCtor(p))
+
+  hasMatch: (ele)->
+    ret = false
+    # match against patterns
+    for injector in @injectors
+      if (injector.isDefinedAt(ele))
+        ret = true
+        @injector = injector
+        break
+
+    # ask guardian if certain pattern matches
+    # make injector clean if guardian disagree
+    if ret and @guard?
+      ret = injector.inject(ele, @guard)
+      if not ret
+        injector.clear()
+
+    # clean up injector if no matches found
+    if not ret
+      @injector = null
+
     Parameter.reset()
-    false
+    ret
   inject: (ele) ->
     @injector.inject(ele, @action)
 

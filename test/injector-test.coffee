@@ -10,8 +10,11 @@ assert = require('assert')
 {
   wildcard
   parameter
+  guard
+  quote
 } = require('../dest/placeholder')
 
+q = quote
 $ = parameter
 _ = wildcard
 
@@ -78,3 +81,65 @@ describe 'Injector', ->
       assert injector.inject({a: 3, b: 'sss'}, (m) ->
         @m.a is m.b and @m.b is m.a
       )
+
+  describe 'PatternMatcher', ->
+    p0 = $(q('test'))
+    p1 = Boolean
+    p2 = {x: 1, y: Number}
+    p3 = [1, 2, $]
+    patterns = [p0, p1, p2, p3]
+    pm = new PatternMatcher(
+      patterns,
+      (p)->p,
+      IncrementalInjector)
+
+    it 'should use the first pattern', ->
+      assert pm.hasMatch('test')
+      assert pm.injector.pattern is p0
+      assert pm.inject('test') is 'test'
+
+    it 'should use the second pattern', ->
+      assert pm.hasMatch(true)
+      assert pm.injector.pattern is p1
+      assert pm.inject() is true
+
+    it 'should use the third', ->
+      assert pm.hasMatch({x: 1, y: 2})
+      assert pm.injector.pattern is p2
+      assert pm.inject() is 2
+
+    it 'should use the fourth', ->
+      assert pm.hasMatch([1, 2, 3])
+      assert pm.injector.pattern is p3
+      assert pm.inject() is 3
+
+    it 'should not match', ->
+      assert pm.hasMatch('no match') is false
+      assert pm.injector is null
+
+    it 'shouldnt ask guardian before match', ->
+      patterns = [String, guard(-> throw 'never here')]
+      pm = new PatternMatcher(
+        patterns
+        (p) -> p
+        IncrementalInjector
+      )
+      assert pm.hasMatch(3) is false
+
+    it 'should ask guardian', ->
+      guardian = guard(-> @m % 2 is 0)
+      patterns = [Number, guard(-> @m % 2 is 0)]
+      pm = new PatternMatcher(
+        patterns
+        (p) -> p
+        IncrementalInjector
+      )
+      assert pm.guard = guardian.guard
+      assert pm.hasMatch(2)
+      assert pm.injector isnt null
+      assert pm.inject(2) is 2
+      assert pm.hasMatch(3) is false
+      assert pm.injector is null
+      assert.throws(
+        -> pm.inject(2)
+      Error)
