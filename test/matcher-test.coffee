@@ -6,11 +6,17 @@ assert = require('assert')
 } = require('../dest/matcher')
 
 {
+  quote
   paramSeq
   parameter
   wildcard
   wildcardSeq
 } = require('../dest/placeholder')
+_ = wildcard
+q = quote
+$ = parameter
+$$ = paramSeq
+__ = wildcardSeq
 
 extract = require('../dest/extractor').extract
 
@@ -70,11 +76,16 @@ describe 'Matcher', ->
 
   describe 'deepMatch', ->
     it 'match wildcard and Wildcard instance', ->
-      _ = wildcard
       assign = -> throw 'should not call'
       assert deepMatch(_, 1, assign)
       assert deepMatch(_, null, assign)
-      assert deepMatch(_, 'whataever', assign)
+      assert deepMatch(_, 'whatever', assign)
       assert deepMatch(_(Number), 1, assign)
       assert deepMatch(_(Number), 'ddd', assign) is false
 
+    it 'quoted pattern should match literally', ->
+      assign = -> throw 'should not call'
+      assert deepMatch(q(1), 1, assign)
+      assert deepMatch(q($), $, assign)
+      assert deepMatch(q(Number), 1, assign) is false
+      assert deepMatch(q($), 'whatever', assign) is false
