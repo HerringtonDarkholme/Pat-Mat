@@ -133,7 +133,7 @@ matchArray = (expr, obj, assign) ->
   if isSeq(v)
     return false if pre > len
     if pre is post
-      assign(v, obj.slice(pre, len)) if v isnt wildcardSeq
+      assign(v, Array::slice.call(obj, pre, len)) if v isnt wildcardSeq
     else
       throw new Error('multiple parameter sequence is not allowed')
     true
