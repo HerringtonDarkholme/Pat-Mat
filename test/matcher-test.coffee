@@ -220,6 +220,22 @@ describe 'Matcher', ->
         deepMatch([$$, 3, $$, 5], obj, assign)
       Error)
 
+    it 'should fail to match array', ->
+      assign = -> throw 'never here'
+      # would match because only pre and post are tested
+      obj = [1, 2]
+      assert deepMatch([1, 2, $$, 1, 2], obj, assign) is false
+      assert deepMatch([], obj, assign) is false
+
+    it 'should not match twice', ->
+      counter = 0
+      assign = -> counter++
+      assert deepMatch([$], [1], assign)
+      assert counter is 1
+    it 'patter length and that of obj are different', ->
+      assert deepMatch([$, $, $], [1, 2], ->) is false
+      assert deepMatch([$, $], [1, 2, 3], ->) is false
+
     it 'match func javascript primitive', ->
       counter = 0
       i = 0

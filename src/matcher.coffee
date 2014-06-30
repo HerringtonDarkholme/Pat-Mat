@@ -116,7 +116,8 @@ matchFunc = (expr, obj, assign) ->
 matchArray = (expr, obj, assign) ->
   #  [1, Number, $, $$, 3, String, $]
   #  ---- pre -----    ---- post ----
-  return false unless isArray(obj)
+  #  ArrayLike is okay
+  # return false unless isArray(obj)
 
   for v, pre in expr
     break if isSeq(v)
@@ -125,16 +126,20 @@ matchArray = (expr, obj, assign) ->
 
   len = obj.length
   for v, post in expr by -1
-    break if isSeq(v)
+    break if isSeq(v) or pre >= post or len < pre
     if not deepMatch(v, obj[--len], assign)
       return false
 
   if isSeq(v)
+    return false if pre > len
     if pre is post
       assign(v, obj.slice(pre, len)) if v isnt wildcardSeq
     else
       throw new Error('multiple parameter sequence is not allowed')
-  true
+    true
+  else
+    # if no $$ occur, length should be the same
+    len is pre
 
 matchObject = (expr, obj, assign) ->
   # skip obj type test for structrual typing
