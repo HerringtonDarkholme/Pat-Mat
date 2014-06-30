@@ -31,6 +31,7 @@ class NamedParameter extends Parameter
 
   getKey: () -> @name
 
+class ParameterSeq extends NamedParameter
 
 class Quote
   constructor: (@pattern) ->
@@ -40,8 +41,9 @@ class Wildcard
 
 _ = wildcard = (pattern) -> new Wildcard(pattern)
 
-$$ = paramSeq = new ->
-__ = wildcardSeq = new ->
+$$ = paramSeq = (name) -> new ParameterSeq(name, _)
+$$.getKey = -> null
+__ = wildcardSeq = new Wildcard(_)
 
 q = quote = (obj) -> new Quote(obj)
 
@@ -53,7 +55,7 @@ $ = parameter = (args...) -> switch args.length
     # $({key1: String, key2: String})
     type = args[0]
     if typeof type is 'string'
-      new NamedParameter(type, wildcard)
+      new NamedParameter(type, _)
     else
       new Parameter(type)
   when 2
@@ -73,6 +75,7 @@ module.exports = {
   Guardian
   NamedParameter
   Parameter
+  ParameterSeq
   Quote
   Wildcard
   guard

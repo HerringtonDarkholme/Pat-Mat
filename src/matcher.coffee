@@ -9,6 +9,7 @@
 
 {
   Parameter
+  ParameterSeq
   Quote
   Wildcard
   paramSeq
@@ -44,6 +45,8 @@ class Matcher
         return false
     true
 
+isSeq = (v) ->
+  v is paramSeq or v is wildcardSeq or v instanceof ParameterSeq
 
 deepMatch = (expr, obj, assign) -> switch
   when expr is wildcard
@@ -116,19 +119,19 @@ matchArray = (expr, obj, assign) ->
   return false unless isArray(obj)
 
   for v, pre in expr
-    break if v is paramSeq or v is wildcardSeq
+    break if isSeq(v)
     if not deepMatch(v, obj[pre], assign)
       return false
 
   len = obj.length
   for v, post in expr by -1
-    break if v is paramSeq or v is wildcardSeq
+    break if isSeq(v)
     if not deepMatch(v, obj[--len], assign)
       return false
 
-  if (expr[pre] is paramSeq)
+  if isSeq(v)
     if pre is post
-      assign(paramSeq, obj.slice(pre, len))
+      assign(v, obj.slice(pre, len)) if v isnt wildcardSeq
     else
       throw new Error('multiple parameter sequence is not allowed')
   true

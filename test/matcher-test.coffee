@@ -9,6 +9,7 @@ assert = require('assert')
   quote
   paramSeq
   parameter
+  Parameter
   wildcard
   wildcardSeq
 } = require('../dest/placeholder')
@@ -170,11 +171,51 @@ describe 'Matcher', ->
       assert deepMatch(null, undefined, ->) is false
 
     it 'match plain object', ->
-      matched = {}
+      Parameter.reset()
+      matched = []
       assign = (expr, obj) ->
-        matched[expr.getKey()] = obj
+        matched[expr.index] = obj
       p = new Point(3, 4)
       assert deepMatch({x: 3, y: 4}, p, assign)
-      assert deepMatch({x: $('x'), y: $('y')}, p, assign)
-      assert matched.x is 3
-      assert matched.y is 4
+      assert deepMatch({x: $(), y: $(Number)}, p, assign)
+      assert matched[0] is 3
+      assert matched[1] is 4
+
+    it 'match array', ->
+      Parameter.reset()
+      obj = [1..5]
+      matched = []
+
+      assign = -> throw 'never here'
+      assert deepMatch([1, 2, 3, 4, 5], obj, assign)
+      assert deepMatch([1, __, 5], obj, assign)
+
+      assign = (expr, obj) ->
+        matched[0] = obj
+      assert deepMatch([1, 2, $$], obj, assign)
+      tail = matched.shift()
+      assert tail[0] is 3 and tail[1] is 4 and tail[2] is 5
+
+      assign = (expr, obj) ->
+        matched[expr.getKey()] = obj
+      assert deepMatch([$$('head'), 4, 5], obj, assign)
+      head = matched.head
+      assert head[0] is 1 and head[1] is 2 and head[2] is 3
+
+      assign = (expr, obj) ->
+        matched[expr.index] = obj
+      Parameter.reset()
+      $$()
+      assert deepMatch([1, $$(), 5], obj, assign)
+      mid = matched[1]
+      assert mid[0] is 2 and mid[1] is 3 and mid[2] is 4
+      Parameter.reset()
+
+    it 'fail to match array', ->
+      assign = -> throw 'never here'
+      obj = [1..5]
+      assert deepMatch([1, $$, 6], obj, assign) is false
+      assert deepMatch([], 123, assign) is false
+      assert.throws(->
+        deepMatch([$$, 3, $$, 5], obj, assign)
+      Error)

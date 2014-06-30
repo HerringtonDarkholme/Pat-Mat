@@ -61,6 +61,14 @@ describe 'Placeholder', ->
     assert action.apply({m: 3}, [3]) is true
     assert action.apply({m: 5}, [5]) is false
 
+  it 'paramSeq should be a NamedParameter instance', ->
+    ps = paramSeq('test')
+    assert ps instanceof NamedParameter
+    assert ps.index is 0
+    assert ps.getKey() is 'test'
+    assert Parameter._index is 1
+    Parameter.reset()
+
   describe '$ should behave polymorphically', ->
     $ = parameter
 
