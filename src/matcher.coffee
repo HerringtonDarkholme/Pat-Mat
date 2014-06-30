@@ -20,7 +20,7 @@
 class Matcher
   constructor: (annotation, transform, argList, ctor) ->
     @annotation = annotation or
-      (ctor and annotate(ctor))
+      (ctor and annotate(ctor)) or []
     @ctor = ctor or Object
     @transform = transform
     @argList = argList
@@ -33,7 +33,8 @@ class Matcher
     if @transform?
       other = @transform(other)
       return false unless other?
-      @annotation = (k for k of other) unless @annotation
+      # don't rely on key enumeration
+      # @annotation = (k for k of other) unless @annotation
     else if not (other instanceof @ctor)
       return false
     argList = @argList
