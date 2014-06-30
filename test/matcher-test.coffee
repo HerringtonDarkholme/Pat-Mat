@@ -16,6 +16,16 @@ Circle = extract class Circle extends Point
     y = other.y
     { r: Math.sqrt(x*x + y*y) }
 
+UnitVector = extract class UnitVector
+  constructor: (@x, @y) ->
+  @unapply: {
+    transform: (other) ->
+      x = other.x
+      y = other.y
+      norm = Math.sqrt(x*x + y*y)
+      {x: x/norm, y: y/norm}
+  }
+
 describe 'Matcher', ->
   it 'default unapply should check constructor', ->
     annotation = ['x', 'y']
@@ -38,6 +48,13 @@ describe 'Matcher', ->
 
   it 'should use transform if provided', ->
     matcher = Circle(5)
+    p = new Point(3, 4)
+    pp = new Point(4, 5)
+    assert matcher.unapply(p, ->)
+    assert matcher.unapply(pp, ->) is false
+
+  it 'should use unapply object', ->
+    matcher = UnitVector(3/5, 4/5)
     p = new Point(3, 4)
     pp = new Point(4, 5)
     assert matcher.unapply(p, ->)
