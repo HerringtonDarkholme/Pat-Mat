@@ -219,3 +219,24 @@ describe 'Matcher', ->
       assert.throws(->
         deepMatch([$$, 3, $$, 5], obj, assign)
       Error)
+
+    it 'match func javascript primitive', ->
+      counter = 0
+      i = 0
+      assign = -> ++counter
+      assert deepMatch(String, 'ttt', assign)
+      assert counter is ++i
+      assert deepMatch(String, 3, assign) is false
+      assert counter is i
+      assert deepMatch(Number, 3, assign)
+      assert counter is ++i
+      assert deepMatch(Boolean, true, assign)
+      assert counter is ++i
+      assert deepMatch(Point, new Point(3, 4), assign)
+      assert counter is ++i
+      assert deepMatch(Point, new Circle(5), assign)
+      assert counter is ++i
+      assert deepMatch(Point, new UnitVector(.727, .727), assign) is false
+      assert counter is i
+      assert deepMatch(Array, [1,2,3], assign)
+      assert counter is ++i
