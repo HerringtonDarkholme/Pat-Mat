@@ -5,6 +5,7 @@ changed = require 'gulp-changed'
 mocha = require 'gulp-mocha'
 browserify = require 'gulp-browserify'
 rename = require 'gulp-rename'
+uglify = require 'gulp-uglify'
 
 SRC = './src/*.coffee'
 DEST =  './dest/'
@@ -29,5 +30,6 @@ gulp.task 'test', ['compile'], ->
 gulp.task 'make', ['compile', 'test'], ->
   gulp.src('./dest/api.js')
     .pipe(browserify())
+    .pipe(uglify())
     .pipe(rename('pattern.js'))
     .pipe(gulp.dest('./lib/'))
