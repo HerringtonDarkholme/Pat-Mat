@@ -144,7 +144,10 @@ matchArray = (expr, obj, assign) ->
 matchObject = (expr, obj, assign) ->
   # skip obj type test for structrual typing
   # A.K.A duck typing :)
-  for key, value of expr when hasOwn.call(expr, key)
+  for key, value of expr when hasOwn(expr, key)
+    objValue = obj[key]
+    if (not objValue?) and (not hasOwn(obj, key))
+      return false
     if not deepMatch(value, obj[key], assign)
       return false
   true
