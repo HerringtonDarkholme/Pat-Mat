@@ -1,5 +1,17 @@
 {
-  "name": "pattern-match",
+  "name": "pattern-matcher",
+  "description": "A serious pattern match library for javascript(and coffee script)",
+  "main": "lib/pattern.js",
+  "version": "0.1.0",
+  "author": "Herrington Darkholme",
+  "license": "MIT",
+
+  "directories": {
+    "lib": "./lib"
+  },
+
+  "dependencies": {
+  },
   "devDependencies": {
     "gulp-coffee": "^2.0.1",
     "coffee-script": "^1.7.1",
@@ -13,5 +25,17 @@
     "gulp-browserify": "^0.5.0",
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^0.3.1"
-  }
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:HerringtonDarkholme/pattern.git"
+  },
+
+  "keywords": [
+    "pattern match",
+    "class hierachy",
+    "multiple method",
+    "pattern matching"
+  ]
 }
