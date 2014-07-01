@@ -3,6 +3,8 @@ gutil = require 'gulp-util'
 coffee = require 'gulp-coffee'
 changed = require 'gulp-changed'
 mocha = require 'gulp-mocha'
+browserify = require 'gulp-browserify'
+rename = require 'gulp-rename'
 
 SRC = './src/*.coffee'
 DEST =  './dest/'
@@ -23,3 +25,9 @@ gulp.task 'test', ['compile'], ->
       compiler: 'coffee:coffee-script/register'
       reporter: 'nyan'
     ))
+
+gulp.task 'make', ['compile', 'test'], ->
+  gulp.src('./dest/api.js')
+    .pipe(browserify())
+    .pipe(rename('pattern.js'))
+    .pipe(gulp.dest('./lib/'))
