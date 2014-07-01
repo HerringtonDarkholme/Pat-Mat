@@ -27,9 +27,9 @@ gulp.task 'test', ['compile'], ->
       reporter: 'nyan'
     ))
 
-gulp.task 'make', ['compile', 'test'], ->
+gulp.task 'browserify', ['compile', 'test'], ->
   gulp.src('./dest/api.js')
     .pipe(browserify())
     .pipe(uglify())
     .pipe(rename('pattern.js'))
-    .pipe(gulp.dest('./lib/'))
+    .pipe(gulp.dest('./browser/'))
