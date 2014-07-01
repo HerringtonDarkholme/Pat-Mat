@@ -168,6 +168,7 @@ describe 'Matcher', ->
       assert deepMatch(NaN, NaN, ->)
       assert deepMatch(q(NaN), NaN, ->) is false
       assert deepMatch(undefined, undefined, ->)
+      assert deepMatch(undefined, 'ss', ->) is false
       assert deepMatch(null, undefined, ->) is false
 
     it 'match plain object', ->
@@ -256,3 +257,4 @@ describe 'Matcher', ->
       assert counter is i
       assert deepMatch(Array, [1,2,3], assign)
       assert counter is ++i
+      assert deepMatch(Number, true, ->) is false

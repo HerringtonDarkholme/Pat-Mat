@@ -61,3 +61,13 @@ describe 'Extractor', ->
     assert cp.transform is cpExtractor.transform
     assert cp.argList is argList
     assert cp.ctor is CustomExtractPoint
+
+  it 'make extractor from plain object', ->
+    Circle = extract {
+      annotation: ['r']
+      transform: (other) ->
+        x = other.x
+        y = other.y
+        {r: Math.sqrt(x*x + y*y)}
+    }
+    assert Circle(5) instanceof Matcher
