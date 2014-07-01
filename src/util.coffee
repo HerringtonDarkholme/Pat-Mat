@@ -1,4 +1,4 @@
-hasOwn = {}.hasOwnProperty
+hasOwn = (obj, key) -> {}.hasOwnProperty.call(obj, key)
 
 isArray = (obj) -> Object::toString.call(obj) is '[object Array]'
 
@@ -18,14 +18,14 @@ isPlainObject = (o) ->
   try
     if (
       o.constructor and
-      !(hasOwn.call(o, 'constructor')) and
-      !hasOwn.call(o.constructor.prototype, 'isPrototypeOf'))
+      !(hasOwn(o, 'constructor')) and
+      !hasOwn(o.constructor.prototype, 'isPrototypeOf'))
       return false
   catch e
     return false
 
   for key of o then
-  return key is undefined || hasOwn.call(o, key)
+  return key is undefined || hasOwn(o, key)
 
 objToArray = (obj) ->
   if isArray(obj)
