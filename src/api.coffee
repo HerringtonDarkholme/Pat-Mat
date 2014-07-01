@@ -6,6 +6,15 @@ isFunc = require('./util').isFunc
   PatternMatcher
 } = require('./injector')
 
+{
+  parameter
+  paramSeq
+  wildcard
+  wildcardSeq
+} = require('./placeholder')
+
+extract = require('./extractor').extract
+
 validatePatterns = (args) ->
   # common pattern
   matchedAction = args.pop()
@@ -32,3 +41,23 @@ Match = (args...) -> (ele) ->
     if injector.hasMatch(ele)
       return injector.inject(ele)
   null
+
+exports = {
+  Match
+  Is
+  As
+  On
+  parameter
+  paramSeq
+  wildcard
+  wildcardSeq
+  extract
+}
+
+# export
+if typeof define is 'function'
+  define -> exports
+else if typeof module isnt 'undefined' and module.exports
+  module.exports = exports
+else
+  global.patternMatch = exports
