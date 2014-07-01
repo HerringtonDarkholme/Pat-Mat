@@ -1,6 +1,6 @@
 {
-  "name": "pattern-matcher",
-  "description": "A serious pattern match library for javascript(and coffee script)",
+  "name": "pat-mat",
+  "description": "A full-feature pattern match library for javascript(and coffee script)",
   "main": "lib/pattern.js",
   "version": "0.1.0",
   "author": "Herrington Darkholme",
