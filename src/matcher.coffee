@@ -77,7 +77,7 @@ deepMatch = (expr, obj, assign) -> switch
 
 matchPrimitive = (expr, obj) ->
   # handle NaN typeof NaN === 'number'
-  if isNaN(obj) and isNaN(expr)
+  if typeof expr is 'number' and isNaN(obj) and isNaN(expr)
     true
   else if obj is expr
     true
