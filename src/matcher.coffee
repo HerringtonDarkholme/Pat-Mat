@@ -144,6 +144,7 @@ matchArray = (expr, obj, assign) ->
 matchObject = (expr, obj, assign) ->
   # skip obj type test for structrual typing
   # A.K.A duck typing :)
+  return false if not obj?
   for key, value of expr when hasOwn(expr, key)
     objValue = obj[key]
     if (not objValue?) and (not hasOwn(obj, key))

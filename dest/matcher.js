@@ -159,6 +159,9 @@ matchArray = function(expr, obj, assign) {
 
 matchObject = function(expr, obj, assign) {
   var key, objValue, value;
+  if (obj == null) {
+    return false;
+  }
   for (key in expr) {
     value = expr[key];
     if (!(hasOwn(expr, key))) {

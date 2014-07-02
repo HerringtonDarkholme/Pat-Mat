@@ -18,7 +18,7 @@ A full-feature [pattern matching](http://en.wikipedia.org/wiki/Pattern_match) li
 
 [There](https://github.com/natefaubion/matches.js) [are](https://github.com/jfd/match-js) [pretty](https://github.com/dherman/pattern-match) [much](https://github.com/pb82/MissMatch) [pattern](https://github.com/puffnfresh/bilby.js) [matching](https://github.com/jiyinyiyong/coffee-pattern) [libraries](https://github.com/bramstein/funcy) [existing](https://github.com/natefaubion/sparkler). However, few of them are feature rich. Even though some libraries are powerful,  they are either deprecated or require advanced [macro](https://github.com/mozilla/sweet.js) system.
 
-This repository, highly inspired by Scala, aims at creating a feature-rich pattern matching library while keeping every thing like plain old JavaScript. Being more powerful and concise is this library's Raison d'être.
+This repository, highly inspired by Scala, aims at creating a feature-rich pattern matching library while keeping every thing like plain old JavaScript. Being more powerful and concise is this library's _Raison d'être_.
 
 Pat-Mat itself was written in CoffeeScript so all the example are also presented in that language. Pat-Mat looks better with Coffee's DSL extensibility. If you don't bother brew a jar of coffee, just add curly braces, `return` and etc. to make it work.
 
@@ -166,7 +166,7 @@ matchPoint({x: '3' , y: 4}) # not a point
 
 ### Wildcard
 `Match` will throws an `NoMatchError` if no `CaseExpression` fits the element.
-You can use a `wildcard` pattern as the `default` case. Wildcard can also be nested pattern.
+You can use a `wildcard` pattern as the **default** case. Wildcard can also be nested pattern.
 
 ```coffee
 _  = require('pat-mat').wildcard
@@ -177,8 +177,88 @@ patmat = Match(
 
 patmat([2, 3]) # two element array as tuple
 patmat(Array) # anything else
+```
+
+### Array
+Matches on entire array or pick up a few elements.
+Pat-Mat provides `paramSeq` and `wildcardSeq` for matching subarray.
+(`Seq` stands for _sequence_)
 
 ```
+$ = require('pat-mat').parameter
+$$ = require('pat-mat').paramSeq
+
+sum = Match(
+  # $$ captures the subarray
+  Is [$, $$], (head, tail)-> head + sum(tail)
+  Is [], -> 0
+)
+
+sum([1, 2, 3]) # 6
+```
+
+Just like `wildcard`, `wildcardSeq` does not bind subarray to any variables.
+One array pattern can have one and only one sequence pattern. Otherwise an Error will occurs.
+
+Array pattern matches all **Array Like**(has `length` property and its elements can be accessed by index) elements. So you can, for example, pass `arguments` to pattern matcher.
+
+### Object
+Object is matched by comparing key-value pairs, so here _Duck Typing_ is conducted.
+
+```coffee
+# will match as long as element has x and y property
+matchPoint = Match(
+  Is {x: $, y: $}, (x, y) -> 'get point'
+)
+
+class Point
+  constructor: (@x, @y)
+
+# take any type
+matchPoint(new Point(3, 4)) # get point
+# even the property is null or undefined
+matchPoint({x: 'd', y: null}) # get point
+# but not if it has no such key
+matchPoint({x: 1}) # NoMatchError
+```
+
+### Type
+If the pattern is a function, then the function will be treated as a constructor function. The element matched against must be a subtype of that constructor.
+
+```coffee
+
+class Animal
+class Snake extends Animal
+class Python extends Snake
+class Naja extends Snake
+class Frog extends Animal
+
+findAnimal = Match(
+  Is Python, -> 'large snake'
+  Is Snake, -> 'snake'
+  Is Animal, -> 'new species'
+)
+
+findAnimal(new Python) # 'large snake'
+findAnimal(new Naja) # 'snake'
+findAnimal(new Frog) # 'new species'
+```
+
+> NB: `instanceof` is used as subtype checking. [Comparing](https://github.com/bramstein/funcy#patterns) `element.constructor` will violates [Liskov Substitution Principle](http://en.wikipedia.org/wiki/Liskov_substitution_principle)
+
+For core JavaScript datatype `Number`, `String`, `Boolean`, their corresponding primitive values are taken as matching elements.
+
+```coffee
+# monoid like mappend
+append = (a, b) -> Match(
+  Is [String, String], -> a + b
+  Is [Number, Number], -> a + b
+  Is [Array, Array], -> a.concat(b)
+)(arguments)
+```
+> NB: Only in `In` case expression is `Type` pattern captured.
+
+### Regular Expression
 
 Matched Action
 ---
