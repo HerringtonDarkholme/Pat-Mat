@@ -4,7 +4,7 @@ assert = require('assert')
   IncrementalInjector
   IndexedInjector
   NominalInjector
-  PatternMatcher
+  CaseExpression
 } = require('../dest/injector')
 
 {
@@ -82,13 +82,13 @@ describe 'Injector', ->
         @m.a is m.b and @m.b is m.a
       )
 
-  describe 'PatternMatcher', ->
+  describe 'CaseExpression', ->
     p0 = $(q('test'))
     p1 = Boolean
     p2 = {x: 1, y: Number}
     p3 = [1, 2, $]
     patterns = [p0, p1, p2, p3]
-    pm = new PatternMatcher(
+    pm = new CaseExpression(
       patterns,
       (p)->p,
       IncrementalInjector)
@@ -119,7 +119,7 @@ describe 'Injector', ->
 
     it 'shouldnt ask guardian before match', ->
       patterns = [String, guard(-> throw 'never here')]
-      pm = new PatternMatcher(
+      pm = new CaseExpression(
         patterns
         (p) -> p
         IncrementalInjector
@@ -129,7 +129,7 @@ describe 'Injector', ->
     it 'should ask guardian', ->
       guardian = guard(-> @m % 2 is 0)
       patterns = [Number, guard(-> @m % 2 is 0)]
-      pm = new PatternMatcher(
+      pm = new CaseExpression(
         patterns
         (p) -> p
         IncrementalInjector

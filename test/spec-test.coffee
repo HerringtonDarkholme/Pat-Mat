@@ -3,6 +3,7 @@
   Is
   As
   On
+  NoMatchError
   extract
   parameter
   paramSeq
@@ -105,3 +106,12 @@ describe 'Match ', ->
     assert m(2) is 4
     assert m({x: 5, y: 5}) is 10
     assert m(true)
+
+  it 'should throw error if no match', ->
+    m = Match(
+      On $('n', Number), (m) -> m.n * 2
+      On {x: $('x'), y: $('y')}, (m) -> m.x + m.y
+    )
+    assert.throws( ->
+      m('no match')
+    NoMatchError)
