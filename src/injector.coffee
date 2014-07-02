@@ -74,7 +74,7 @@ class NominalInjector extends Injector
     @cache = if isArray(c) then c else [c]
     super
 
-class PatternMatcher
+class CaseExpression
   constructor: (patterns, action, injectCtor) ->
     # intern patterns into injector
     @injector = null
@@ -120,5 +120,5 @@ module.exports = {
   IncrementalInjector
   IndexedInjector
   NominalInjector
-  PatternMatcher
+  CaseExpression
 }

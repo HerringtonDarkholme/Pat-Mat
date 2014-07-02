@@ -3,7 +3,7 @@ isFunc = require('./util').isFunc
   IncrementalInjector
   IndexedInjector
   NominalInjector
-  PatternMatcher
+  CaseExpression
 } = require('./injector')
 
 {
@@ -24,11 +24,14 @@ validatePatterns = (args) ->
 
 makeAPI = (injectCtor) -> (args...) ->
   [patterns, matchedAction] = validatePatterns(args)
-  new PatternMatcher(patterns, matchedAction, injectCtor)
+  new CaseExpression(patterns, matchedAction, injectCtor)
 
 Is = makeAPI(IncrementalInjector)
 As = makeAPI(IndexedInjector)
 On = makeAPI(NominalInjector)
+
+class NoMatchError extends Error
+  constructor: -> @message = 'no matching case'
 
 decorateObjectPrototype = (name='Match') ->
   Object::[name] = (args...) ->
@@ -36,17 +39,18 @@ decorateObjectPrototype = (name='Match') ->
 
 Match = (args...) -> (ele) ->
   for injector in args
-    unless injector instanceof PatternMatcher
+    unless injector instanceof CaseExpression
       throw new TypeError('need Is/As/On clause')
     if injector.hasMatch(ele)
       return injector.inject(ele)
-  null
+  throw new NoMatchError()
 
 exports = {
   Match
   Is
   As
   On
+  NoMatchError
   parameter
   paramSeq
   wildcard
