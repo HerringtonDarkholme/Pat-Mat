@@ -1,9 +1,11 @@
-var As, IncrementalInjector, IndexedInjector, Is, Match, NominalInjector, On, PatternMatcher, decorateObjectPrototype, exports, extract, isFunc, makeAPI, paramSeq, parameter, validatePatterns, wildcard, wildcardSeq, _ref, _ref1,
-  __slice = [].slice;
+var As, CaseExpression, IncrementalInjector, IndexedInjector, Is, Match, NoMatchError, NominalInjector, On, decorateObjectPrototype, exports, extract, isFunc, makeAPI, paramSeq, parameter, validatePatterns, wildcard, wildcardSeq, _ref, _ref1,
+  __slice = [].slice,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 isFunc = require('./util').isFunc;
 
-_ref = require('./injector'), IncrementalInjector = _ref.IncrementalInjector, IndexedInjector = _ref.IndexedInjector, NominalInjector = _ref.NominalInjector, PatternMatcher = _ref.PatternMatcher;
+_ref = require('./injector'), IncrementalInjector = _ref.IncrementalInjector, IndexedInjector = _ref.IndexedInjector, NominalInjector = _ref.NominalInjector, CaseExpression = _ref.CaseExpression;
 
 _ref1 = require('./placeholder'), parameter = _ref1.parameter, paramSeq = _ref1.paramSeq, wildcard = _ref1.wildcard, wildcardSeq = _ref1.wildcardSeq;
 
@@ -23,7 +25,7 @@ makeAPI = function(injectCtor) {
     var args, matchedAction, patterns, _ref2;
     args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     _ref2 = validatePatterns(args), patterns = _ref2[0], matchedAction = _ref2[1];
-    return new PatternMatcher(patterns, matchedAction, injectCtor);
+    return new CaseExpression(patterns, matchedAction, injectCtor);
   };
 };
 
@@ -32,6 +34,17 @@ Is = makeAPI(IncrementalInjector);
 As = makeAPI(IndexedInjector);
 
 On = makeAPI(NominalInjector);
+
+NoMatchError = (function(_super) {
+  __extends(NoMatchError, _super);
+
+  function NoMatchError() {
+    this.message = 'no matching case';
+  }
+
+  return NoMatchError;
+
+})(Error);
 
 decorateObjectPrototype = function(name) {
   if (name == null) {
@@ -51,14 +64,14 @@ Match = function() {
     var injector, _i, _len;
     for (_i = 0, _len = args.length; _i < _len; _i++) {
       injector = args[_i];
-      if (!(injector instanceof PatternMatcher)) {
+      if (!(injector instanceof CaseExpression)) {
         throw new TypeError('need Is/As/On clause');
       }
       if (injector.hasMatch(ele)) {
         return injector.inject(ele);
       }
     }
-    return null;
+    throw new NoMatchError();
   };
 };
 
@@ -67,6 +80,7 @@ exports = {
   Is: Is,
   As: As,
   On: On,
+  NoMatchError: NoMatchError,
   parameter: parameter,
   paramSeq: paramSeq,
   wildcard: wildcard,

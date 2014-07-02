@@ -1,4 +1,4 @@
-var Guardian, IncrementalInjector, IndexedInjector, Injector, NominalInjector, Parameter, PatternMatcher, assignmentFactory, deepMatch, incrementalCounter, indexedCounter, isArray, isFunc, isRegExp, nominalCounter, objToArray, _ref, _ref1, _ref2,
+var CaseExpression, Guardian, IncrementalInjector, IndexedInjector, Injector, NominalInjector, Parameter, assignmentFactory, deepMatch, incrementalCounter, indexedCounter, isArray, isFunc, isRegExp, nominalCounter, objToArray, _ref, _ref1, _ref2,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -115,8 +115,8 @@ NominalInjector = (function(_super) {
 
 })(Injector);
 
-PatternMatcher = (function() {
-  function PatternMatcher(patterns, action, injectCtor) {
+CaseExpression = (function() {
+  function CaseExpression(patterns, action, injectCtor) {
     var guardian, p, _i, _len;
     this.injector = null;
     this.guard = null;
@@ -133,7 +133,7 @@ PatternMatcher = (function() {
     }
   }
 
-  PatternMatcher.prototype.hasMatch = function(ele) {
+  CaseExpression.prototype.hasMatch = function(ele) {
     var injector, ret, _i, _len, _ref3;
     ret = false;
     _ref3 = this.injectors;
@@ -158,11 +158,11 @@ PatternMatcher = (function() {
     return ret;
   };
 
-  PatternMatcher.prototype.inject = function(ele) {
+  CaseExpression.prototype.inject = function(ele) {
     return this.injector.inject(ele, this.action);
   };
 
-  return PatternMatcher;
+  return CaseExpression;
 
 })();
 
@@ -170,5 +170,5 @@ module.exports = {
   IncrementalInjector: IncrementalInjector,
   IndexedInjector: IndexedInjector,
   NominalInjector: NominalInjector,
-  PatternMatcher: PatternMatcher
+  CaseExpression: CaseExpression
 };
