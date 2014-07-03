@@ -33,10 +33,6 @@ On = makeAPI(NominalInjector)
 class NoMatchError extends Error
   constructor: -> @message = 'no matching case'
 
-decorateObjectPrototype = (name='Match') ->
-  Object::[name] = (args...) ->
-    Match(args...)(this)
-
 Match = (args...) -> (ele) ->
   for injector in args
     unless injector instanceof CaseExpression
