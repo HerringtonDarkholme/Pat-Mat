@@ -382,7 +382,7 @@ Matched Action
 
 Matched action is just plain function. How it receives arguments is dependent on the `case expression`, as specified before.
 
-Matched action has binded to matching objects to pass more information. You can access the whole match via `this.m` and variable that not captured by `As`/`On` via `this.unnamed`.
+Matched action has binded to matching objects to pass more information. You can access the whole match via `this.m` and variables that are not captured by `As`/`On` via `this.unnamed`.
 
 ```coffee
 fib = Match(
@@ -390,11 +390,76 @@ fib = Match(
   As 1, -> 1
   As Number, -> fib(@m-1) + fib(@m-2)
 )
+fib(longProcess().getData().getMockNumber().canBeBindedToThisM())
 ```
 
 Class Annotator
 ---
-> TODO
+
+`extract` is a function that returns a case class constructor.
+It will analyzes the original constructor function by `toString()` and extracts the fields.
+However, compressed JavaScript will lose the information. You can set the `unapply` static attribute of the **constructor function** to give Pat-Mat a hint.
+`unapply` can be `annotation`, an array of string that corresponds to the constructor's argument and instance fields.
+
+```coffee
+Point = extract class Point
+  constructor: (longlongx, longlongy) ->
+    @x = longlongx
+    @y = longlongy
+
+  @unapply = ['x', 'y']
+
+p = new Point(3, 4)
+# now Pat-Mat will compare p.x and p.y
+# Point(3, 4) will match p
+```
+
+If the fields are modified in constructor, you can set `unapply` to a `transform` function.
+`transform` function takes the element to be  matched as argument, and should return an objects with properties specified in `annotation`.
+`annotation` is just the array described above. If `unapply` is function, `annotation` is programatically found.
+
+```coffee
+UnitVector = extract class UnitVector
+  constructor: (x, y) ->
+    norm = Math.sqrt(x*x + y*y)
+    @x = x / norm
+    @y = y / norm
+
+  @unapply = (other) ->
+    x = other.x
+    y = other.y
+    norm = Math.sqrt(x*x + y*y)
+    # in this case you can also return
+    # new UnitVector(other.x, other.y)
+    # because the constructor is side-effect free
+    return {
+      x: x / norm
+      y: y / norm
+    }
+```
+
+Combining `annotation` and `transform` is okay.
+Set `unapply` to an object with `transform` and `annotation`.
+
+```coffee
+Circle = extract class Circle
+  constructor: (longlongr) ->
+    @r = longlongr
+  @unapply = {
+    annotation: ['r']
+    transform: Match(
+      # only transform Circle/Point instance
+      Is Circle, -> @m
+      Is Point($, $), (x, y) ->
+        {r: Math.sqrt(x*x + y*y)}
+      Is _, -> null
+    )
+  }
+```
+
+If `transform` is defined, then the case class pattern can match any type, as long as the `transform`'s return value is not null.
+
+As illustrated above, `transform` can be implemented easily with Pat-Mat.
 
 Customized Extractor
 ---
