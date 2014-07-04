@@ -455,6 +455,13 @@ Circle = extract class Circle
       Is _, -> null
     )
   }
+
+getRadius = Match(
+  Is Circle($), (r) -> 'radius: ' + r
+)
+getRadius(new Circle(5)) # radius: 5
+getRadius(new Point(3, 4)) # radius: 5
+getRadius({r: 5}) # throw NoMatchError
 ```
 
 If `transform` is defined, then the case class pattern can match any type, as long as the `transform`'s return value is not null.
@@ -463,8 +470,31 @@ As illustrated above, `transform` can be implemented easily with Pat-Mat.
 
 Customized Extractor
 ---
-> TODO
 
+Much similar to class annotator, customized extractor is constructed by passing an `unapply` object to `extract`.
+`unapply` should have `annotation` property and optional `transform` property.
+
+Attention: extractor is not a constructor function.
+
+```
+Circle = extract({
+  annotation: ['r']
+  transform: Match(
+    Is {r: Number}, -> @m # duck typing
+    Is Point($, $), (x, y) ->
+      {r: Math.sqrt(x*x + y*y)}
+    Is _, -> null
+  )
+})
+
+getRadius = Match(
+  Is Circle($), (r) -> 'radius: ' + r
+)
+
+getRadius(new Point(3, 4)) # radius: 5
+getRadius({r: 5}) # radius: 5
+getRadius(new Circle(5)) # TypeError, Circle is not a constructor function
+```
 Pattern Guard
 ---
 > TODO
