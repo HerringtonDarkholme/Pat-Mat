@@ -333,12 +333,64 @@ For solution, please refer to [Class Annotator](https://github.com/HerringtonDar
 Case Expression
 ---
 `Is/As/On`
-> TODO
+Object in JavaScript is a collection of unordered key-value pair. Though expressions like `{x: $, y: $}` will usually keep the order, Pat-Mat gives different `case expression` function to guarantee order.
+
+`As` will apply arguments to the matched action, but variable binding needs to call `parameter` in pattern.
+
+```coffee
+argCount = -> arguments.length
+m = Match(
+  # no captured group
+  As /test/             , argCount
+  # function constructor will not be captured
+  As String             , argCount
+  # will be captured because it invokes `parameter`
+  As {x: $()}           , argCount
+  # only capture the first element
+  As [$(), __ , Number] , argCount
+  # `parameter` itself is not captured
+  As $,                   argCount
+)
+
+m('test') # 0
+m('ssss') # 0
+m({x: 5, y: 5}) # 1
+m([3, 3, 3]) # 1
+m(null) # 0
+```
+
+`On` will pass an object of which the values are captured variables .`On` requires `NamedParameter`, which means `parameter` should be invoked with a name string as its first argument. The `name` of parameter will be the key of the object.
+
+```coffee
+m = Match(
+  On $('n', Number), (m) -> m.n * 2
+  On {x: $('x'), y: $('y')}, (m) -> m.x + m.y
+  On $(), -> @unnamed[0]
+)
+
+m(2) # 4
+m({x: 5, y: 5}) # 10
+m(true) # true
+```
+
+Uninvoked `parameter` in `As` and `On`, and `parameter` instance other than `NamedParameter` will be stored in `this.unnamed` array and binded to matched function.
+
+> NB: `Is` stands for _incremental_. `As` stands for _Array_. `On` stands for _Object_. The initials of these functions suggests their argument passing policies.
 
 Matched Action
 ---
 
-> TODO
+Matched action is just plain function. How it receives arguments is dependent on the `case expression`, as specified before.
+
+Matched action has binded to matching objects to pass more information. You can access the whole match via `this.m` and variable that not captured by `As`/`On` via `this.unnamed`.
+
+```coffee
+fib = Match(
+  As 0, -> 0
+  As 1, -> 1
+  As Number, -> fib(@m-1) + fib(@m-2)
+)
+```
 
 Class Annotator
 ---
