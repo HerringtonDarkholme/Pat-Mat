@@ -1,4 +1,4 @@
-var As, CaseExpression, IncrementalInjector, IndexedInjector, Is, Match, NoMatchError, NominalInjector, On, decorateObjectPrototype, exports, extract, isFunc, makeAPI, paramSeq, parameter, validatePatterns, wildcard, wildcardSeq, _ref, _ref1,
+var As, CaseExpression, IncrementalInjector, IndexedInjector, Is, Match, NoMatchError, NominalInjector, On, exports, extract, guard, isFunc, makeAPI, paramSeq, parameter, validatePatterns, wildcard, wildcardSeq, _ref, _ref1,
   __slice = [].slice,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -7,7 +7,7 @@ isFunc = require('./util').isFunc;
 
 _ref = require('./injector'), IncrementalInjector = _ref.IncrementalInjector, IndexedInjector = _ref.IndexedInjector, NominalInjector = _ref.NominalInjector, CaseExpression = _ref.CaseExpression;
 
-_ref1 = require('./placeholder'), parameter = _ref1.parameter, paramSeq = _ref1.paramSeq, wildcard = _ref1.wildcard, wildcardSeq = _ref1.wildcardSeq;
+_ref1 = require('./placeholder'), guard = _ref1.guard, parameter = _ref1.parameter, paramSeq = _ref1.paramSeq, wildcard = _ref1.wildcard, wildcardSeq = _ref1.wildcardSeq;
 
 extract = require('./extractor').extract;
 
@@ -46,17 +46,6 @@ NoMatchError = (function(_super) {
 
 })(Error);
 
-decorateObjectPrototype = function(name) {
-  if (name == null) {
-    name = 'Match';
-  }
-  return Object.prototype[name] = function() {
-    var args;
-    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    return Match.apply(null, args)(this);
-  };
-};
-
 Match = function() {
   var args;
   args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -81,6 +70,7 @@ exports = {
   As: As,
   On: On,
   NoMatchError: NoMatchError,
+  guard: guard,
   parameter: parameter,
   paramSeq: paramSeq,
   wildcard: wildcard,

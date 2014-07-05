@@ -497,7 +497,19 @@ getRadius(new Circle(5)) # TypeError, Circle is not a constructor function
 ```
 Pattern Guard
 ---
-> TODO
+Pattern guard is also supported by `guard` function.
+Pattern guard should immediately follow the pattern in case expression. Only one pattern can precede the guard, so no alternative pattern cannot be used.
+
+```coffee
+m = Match(
+  Is Number, guard(-> @m%2 == 0), -> 'even'
+  Is Number, guard(-> @m%2 == 1), -> 'odd'
+  Is wildcard, -> 'not integer'
+)
+m(2) # is 'even'
+m(3) # is 'odd'
+m('dd') # is 'not integer'
+```
 
 API
 ===

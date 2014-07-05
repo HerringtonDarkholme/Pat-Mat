@@ -5,6 +5,7 @@
   On
   NoMatchError
   extract
+  guard
   parameter
   paramSeq
   wildcard
@@ -115,3 +116,13 @@ describe 'Match ', ->
     assert.throws( ->
       m('no match')
     NoMatchError)
+
+  it 'should ask guard', ->
+    m = Match(
+      Is Number, guard(-> @m%2 == 0), -> 'even'
+      Is Number, guard(-> @m%2 == 1), -> 'odd'
+      Is wildcard, -> 'not integer'
+    )
+    assert m(2) is 'even'
+    assert m(3) is 'odd'
+    assert m('dd') is 'not integer'

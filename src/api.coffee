@@ -7,6 +7,7 @@ isFunc = require('./util').isFunc
 } = require('./injector')
 
 {
+  guard
   parameter
   paramSeq
   wildcard
@@ -47,6 +48,7 @@ exports = {
   As
   On
   NoMatchError
+  guard
   parameter
   paramSeq
   wildcard
