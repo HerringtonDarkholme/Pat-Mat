@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Pat-mat by HerringtonDarkholme</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Pat-mat</h1>
+        <h2> a Full-Feature Pattern Matching Library for JavaScript (or Coffee)</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/HerringtonDarkholme/Pat-Mat/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/HerringtonDarkholme/Pat-Mat/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/HerringtonDarkholme/Pat-Mat" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="pat-mat" class="anchor" href="#pat-mat"><span class="octicon octicon-link"></span></a>Pat-Mat</h1>
+
+<p>A full-feature <a href="http://en.wikipedia.org/wiki/Pattern_match">pattern matching</a> library for JavaScript and CoffeeScript</p>
+
+<h2>
+<a name="feature" class="anchor" href="#feature"><span class="octicon octicon-link"></span></a>Feature</h2>
+
+<ul>
+<li>Plain Old JavaScript Object as Pattern</li>
+<li>Variable Binding</li>
+<li>Case Class</li>
+<li>Pattern Guard</li>
+<li>Alternative Pattern</li>
+<li>Customizable Extractor</li>
+<li>Concise API</li>
+<li>Automatic Class Annotator</li>
+<li>Enumeration Order Independent</li>
+</ul><h2>
+<a name="reason" class="anchor" href="#reason"><span class="octicon octicon-link"></span></a>Reason</h2>
+
+<p><a href="https://github.com/natefaubion/matches.js">There</a> <a href="https://github.com/jfd/match-js">are</a> <a href="https://github.com/dherman/pattern-match">pretty</a> <a href="https://github.com/pb82/MissMatch">much</a> <a href="https://github.com/puffnfresh/bilby.js">pattern</a> <a href="https://github.com/jiyinyiyong/coffee-pattern">matching</a> <a href="https://github.com/bramstein/funcy">libraries</a> <a href="https://github.com/natefaubion/sparkler">existing</a>. However, few of them are feature rich. Even though some libraries are powerful,  they are either deprecated or require advanced <a href="https://github.com/mozilla/sweet.js">macro</a> system.</p>
+
+<p>This repository, highly inspired by Scala, aims at creating a feature-rich pattern matching library while keeping every thing like plain old JavaScript. Being more powerful and concise is this library's <em>Raison d'être</em>.</p>
+
+<p>Pat-Mat itself was written in CoffeeScript so all the example are also presented in that language. Pat-Mat looks better with Coffee's DSL extensibility. If you don't bother brew a jar of coffee, just add curly braces, <code>return</code> and etc. to make it work.</p>
+
+<h2>
+<a name="install" class="anchor" href="#install"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<p>Assuming you have installed <code>npm</code> and NodeJS. Then in your console.
+<code>npm install pat-mat</code></p>
+
+<p>And in code:</p>
+
+<div class="highlight highlight-coffee"><pre><span class="c1"># import</span>
+<span class="p">{</span><span class="nx">Match</span><span class="p">,</span> <span class="nx">Is</span><span class="p">,</span> <span class="nx">parameter</span><span class="p">,</span> <span class="nx">paramSeq</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">)</span>
+<span class="c1"># rename for eye candy</span>
+<span class="nv">$ = </span><span class="nx">parameter</span>
+<span class="nv">$$ = </span><span class="nx">paramSeq</span>
+<span class="c1"># later use, (username)@(domain).xx</span>
+<span class="nv">MAIL_REG = </span><span class="sr">/(.*?)@(.*?)\..+/</span>
+
+<span class="c1"># example usage</span>
+<span class="nv">m = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="c1"># literal</span>
+  <span class="nx">Is</span> <span class="mi">42</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'meaning of life'</span>
+  <span class="c1"># Type</span>
+  <span class="nx">Is</span> <span class="nb">Function</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'get a function'</span>
+  <span class="c1"># object</span>
+  <span class="nx">Is</span> <span class="p">{</span><span class="nv">x: </span><span class="mi">3</span><span class="p">,</span> <span class="nv">y: </span><span class="mi">4</span><span class="p">},</span> <span class="nf">-&gt;</span>  <span class="s">'x is 3, y is 4'</span>
+  <span class="c1"># alternative</span>
+  <span class="nx">Is</span> <span class="nb">Number</span><span class="p">,</span> <span class="nb">Boolean</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'num or func'</span>
+  <span class="c1"># variable binding</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nx">$</span><span class="p">,</span> <span class="nx">$$</span><span class="p">],</span> <span class="nf">(head, tail) -&gt;</span> <span class="nx">head</span>
+  <span class="c1"># RegExp</span>
+  <span class="nx">Is</span> <span class="nx">MAIL_REG</span><span class="p">,</span> <span class="nf">(s, name, domain) -&gt;</span> <span class="nx">name</span>
+<span class="p">)</span>
+
+<span class="c1"># match element by calling</span>
+<span class="nx">m</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span> <span class="c1"># 'meaning of life'</span>
+<span class="c1"># Match() returns a function</span>
+<span class="nx">m</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span> <span class="c1"># 'get a function'</span>
+</pre></div>
+
+<p>And all patterns are just <a href="http://en.wikipedia.org/wiki/Plain_Old_Java_Object">POJO</a> -- plain old javascript objects, rather than <a href="https://news.ycombinator.com/item?id=4519367">string pattern</a>. So you still have syntax highlight in your patterns.</p>
+
+<h2>
+<a name="basic" class="anchor" href="#basic"><span class="octicon octicon-link"></span></a>Basic</h2>
+
+<p>Starting pattern match is just calling pat-mat's <code>Match</code> function. It receive several <code>case expression</code> as arguments and return a function that takes element to match. <code>Case expression</code> is  the result of <code>Is</code> function. <code>Is</code> takes at least two arguments: the last one is a function to be called when a match is found, and other arguments before it are patterns.</p>
+
+<p>Case expressions (and Patterns) are sequentially matched from top to down as passed when calling <code>Match</code>. The first matching pattern will trigger the matched function and pass matched variable to the latter.</p>
+
+<p>Pat-Mat provides a <code>parameter</code> singleton for variable binding. If <code>parameter</code> occurs in pattern, it will be recorded in <code>Is</code> expression and be passed to matched function as argument.</p>
+
+<p>Matched function's return value will be the result of pattern-matching, make sure you do <code>return</code>. Matched function will be passed arguments of variable length, depending on the matching pattern. Arguments order is generally left to right, top to down, but that's not guaranteed for object because <a href="http://stackoverflow.com/a/5525820">ECMA's spec</a>. Solution for this will be presented later.</p>
+
+<blockquote>
+<p>NB: Pat-Mat also provides other case expression for different variable binding policies).</p>
+</blockquote>
+
+<p>For now, if it is unclear for you, just reading the following example to see how to use Pat-Mat</p>
+
+<div class="highlight highlight-coffee"><pre><span class="p">{</span><span class="nx">Match</span><span class="p">,</span> <span class="nx">Is</span><span class="p">,</span> <span class="nx">parameter</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">)</span>
+
+<span class="c1"># finding the factorial of n</span>
+<span class="nv">fact = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="mi">0</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="mi">1</span>
+  <span class="nx">Is</span> <span class="nx">parameter</span><span class="p">,</span> <span class="nf">(n) -&gt;</span> <span class="nx">n</span> <span class="o">*</span> <span class="nx">fact</span><span class="p">(</span><span class="nx">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># fact is a function</span>
+<span class="nx">fact</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># is 6</span>
+<span class="nx">fact</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="c1"># is 720</span>
+</pre></div>
+
+<p>To summarize, there are just three points to leverage the basic of Pat-Mat</p>
+
+<ul>
+<li>
+<code>Match</code>, call it and pass it several</li>
+<li>
+<code>Is</code>, case expressions to match. Every <code>Is</code> has</li>
+<li>patterns and matched action. Matched action is just function</li>
+</ul><p>And how patterns are composed is just explained in the following section.</p>
+
+<h2>
+<a name="patterns" class="anchor" href="#patterns"><span class="octicon octicon-link"></span></a>Patterns</h2>
+
+<h3>
+<a name="literals" class="anchor" href="#literals"><span class="octicon octicon-link"></span></a>Literals</h3>
+
+<p>Check value literally. It supports all JavaScript primitive values including string, number, <code>null</code>, <code>undefined</code> and <code>NaN</code>
+Note that since patterns are just normal JavaScript objects, variables in patterns are passed as their value/reference.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">k = </span><span class="s">'a string'</span>
+<span class="nv">patmat = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="mi">42</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="p">...</span>
+  <span class="nx">Is</span> <span class="s">'a string'</span><span class="p">,</span> <span class="nf">-&gt;</span>
+  <span class="nx">Is</span> <span class="nx">k</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="p">...</span> <span class="c1"># same as above</span>
+  <span class="nx">Is</span> <span class="kc">null</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="p">...</span>
+  <span class="nx">Is</span> <span class="kc">undefined</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="p">...</span>
+  <span class="nx">Is</span> <span class="kc">NaN</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="p">...</span> <span class="c1"># matched by isNaN</span>
+<span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="parameter" class="anchor" href="#parameter"><span class="octicon octicon-link"></span></a>Parameter</h3>
+
+<p>Variables can be captured by using parameter. They are passed as arguments to matched actions.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="c1"># for shorter name</span>
+<span class="nv">$ = </span><span class="nx">parameter</span>
+
+<span class="nv">patmat = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nx">$</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="nf">(p) -&gt;</span> <span class="s">'p is '</span> <span class="o">+</span> <span class="nx">p</span>
+  <span class="nx">Is</span> <span class="p">{</span><span class="nv">x: </span><span class="nx">$</span><span class="p">},</span> <span class="nf">(x) -&gt;</span> <span class="s">'x is '</span> <span class="o">+</span> <span class="nx">x</span>
+<span class="p">)</span>
+
+<span class="nx">patmat</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="c1"># p is 1</span>
+<span class="nx">patmat</span><span class="p">({</span><span class="nv">x: </span><span class="mi">1</span><span class="p">})</span> <span class="c1"># x is 1</span>
+</pre></div>
+
+<p>You can also use <code>parameter</code> as function to specify what kind of value will be captured.
+<code>parameter</code> takes <code>pattern</code> as argument, except for string pattern.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">_ = </span><span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">).</span><span class="nx">wildcard</span>
+
+<span class="nv">patmat = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nx">$</span><span class="p">(</span><span class="nb">Number</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="nf">-&gt;</span> <span class="s">'matched'</span>
+  <span class="nx">Is</span> <span class="nx">_</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'no match'</span>
+<span class="p">)</span>
+
+<span class="nx">patmat</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="c1"># matched</span>
+<span class="nx">patmat</span><span class="p">([</span><span class="s">'str'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="c1"># no match</span>
+</pre></div>
+
+<p>If you worry that enumerating order of object keys is not stable, as specified by ECMA, you can use string to name the parameter.
+And you need another function to generate <code>case expression</code>: <code>On</code>.
+Matched action in <code>On</code> expression receives an plain object as argument, in which the names you assign to parameters are keys.
+The second argument in <code>parameter</code> is <code>pattern</code>.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">_ = </span><span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">).</span><span class="nx">wildcard</span>
+<span class="nv">matchPoint = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">On</span> <span class="p">{</span><span class="nv">x: </span><span class="nx">$</span><span class="p">(</span><span class="s">'x'</span><span class="p">,</span> <span class="nb">Number</span><span class="p">),</span> <span class="nx">$</span><span class="p">(</span><span class="s">'y'</span><span class="p">)},</span> <span class="nf">(point) -&gt;</span> <span class="nx">p</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">p</span><span class="p">.</span><span class="nx">y</span>
+  <span class="nx">On</span> <span class="nx">_</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'not a point'</span>
+<span class="p">)</span>
+
+<span class="nx">matchPoint</span><span class="p">({</span><span class="nv">x: </span><span class="mi">3</span><span class="p">,</span> <span class="nv">y: </span><span class="mi">4</span><span class="p">})</span> <span class="c1"># 7</span>
+<span class="nx">matchPoint</span><span class="p">({</span><span class="nv">x: </span><span class="s">'3'</span> <span class="p">,</span> <span class="nv">y: </span><span class="mi">4</span><span class="p">})</span> <span class="c1"># not a point</span>
+</pre></div>
+
+<h3>
+<a name="wildcard" class="anchor" href="#wildcard"><span class="octicon octicon-link"></span></a>Wildcard</h3>
+
+<p><code>Match</code> will throws an <code>NoMatchError</code> if no <code>CaseExpression</code> fits the element.
+You can use a <code>wildcard</code> pattern as the <strong>default</strong> case. Wildcard can also be nested pattern.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">_  = </span><span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">).</span><span class="nx">wildcard</span>
+<span class="nv">patmat = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nx">_</span><span class="p">,</span> <span class="nx">_</span><span class="p">],</span> <span class="nf">-&gt;</span> <span class="s">'two element array as tuple'</span>
+  <span class="nx">Is</span> <span class="nx">_</span><span class="p">,</span>      <span class="nf">-&gt;</span> <span class="s">'anything else'</span>
+<span class="p">)</span>
+
+<span class="nx">patmat</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="c1"># two element array as tuple</span>
+<span class="nx">patmat</span><span class="p">(</span><span class="nb">Array</span><span class="p">)</span> <span class="c1"># anything else</span>
+</pre></div>
+
+<h3>
+<a name="array" class="anchor" href="#array"><span class="octicon octicon-link"></span></a>Array</h3>
+
+<p>Matches on entire array or pick up a few elements.
+Pat-Mat provides <code>paramSeq</code> and <code>wildcardSeq</code> for matching subarray.
+(<code>Seq</code> stands for <em>sequence</em>)</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">$ = </span><span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">).</span><span class="nx">parameter</span>
+<span class="nv">$$ = </span><span class="nx">require</span><span class="p">(</span><span class="s">'pat-mat'</span><span class="p">).</span><span class="nx">paramSeq</span>
+
+<span class="nv">sum = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="c1"># $$ captures the subarray</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nx">$</span><span class="p">,</span> <span class="nx">$$</span><span class="p">],</span> <span class="nf">(head, tail)-&gt;</span> <span class="nx">head</span> <span class="o">+</span> <span class="nx">sum</span><span class="p">(</span><span class="nx">tail</span><span class="p">)</span>
+  <span class="nx">Is</span> <span class="p">[],</span> <span class="nf">-&gt;</span> <span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="nx">sum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="c1"># 6</span>
+</pre></div>
+
+<p>Just like <code>wildcard</code>, <code>wildcardSeq</code> does not bind subarray to any variables.
+One array pattern can have one and only one sequence pattern. Otherwise an Error will occurs.</p>
+
+<p>Array pattern matches all <strong>Array Like</strong>(has <code>length</code> property and its elements can be accessed by index) elements. So you can, for example, pass <code>arguments</code> to pattern matcher.</p>
+
+<h3>
+<a name="object" class="anchor" href="#object"><span class="octicon octicon-link"></span></a>Object</h3>
+
+<p>Object is matched by comparing key-value pairs, so here <em>Duck Typing</em> is conducted.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="c1"># will match as long as element has x and y property</span>
+<span class="nv">matchPoint = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="p">{</span><span class="nv">x: </span><span class="nx">$</span><span class="p">,</span> <span class="nv">y: </span><span class="nx">$</span><span class="p">},</span> <span class="nf">(x, y) -&gt;</span> <span class="s">'get point'</span>
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nx">Point</span>
+  <span class="nv">constructor: </span><span class="p">(</span><span class="nx">@x</span><span class="p">,</span> <span class="nx">@y</span><span class="p">)</span>
+
+<span class="c1"># take any type</span>
+<span class="nx">matchPoint</span><span class="p">(</span><span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="c1"># get point</span>
+<span class="c1"># even the property is null or undefined</span>
+<span class="nx">matchPoint</span><span class="p">({</span><span class="nv">x: </span><span class="s">'d'</span><span class="p">,</span> <span class="nv">y: </span><span class="kc">null</span><span class="p">})</span> <span class="c1"># get point</span>
+<span class="c1"># but not if it has no such key</span>
+<span class="nx">matchPoint</span><span class="p">({</span><span class="nv">x: </span><span class="mi">1</span><span class="p">})</span> <span class="c1"># NoMatchError</span>
+</pre></div>
+
+<h3>
+<a name="type" class="anchor" href="#type"><span class="octicon octicon-link"></span></a>Type</h3>
+
+<p>If the pattern is a function, then the function will be treated as a constructor function. The element matched against must be a subtype of that constructor.</p>
+
+<div class="highlight highlight-coffee"><pre>
+<span class="k">class</span> <span class="nx">Animal</span>
+<span class="k">class</span> <span class="nx">Snake</span> <span class="k">extends</span> <span class="nx">Animal</span>
+<span class="k">class</span> <span class="nx">Python</span> <span class="k">extends</span> <span class="nx">Snake</span>
+<span class="k">class</span> <span class="nx">Naja</span> <span class="k">extends</span> <span class="nx">Snake</span>
+<span class="k">class</span> <span class="nx">Frog</span> <span class="k">extends</span> <span class="nx">Animal</span>
+
+<span class="nv">findAnimal = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="nx">Python</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'large snake'</span>
+  <span class="nx">Is</span> <span class="nx">Snake</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'snake'</span>
+  <span class="nx">Is</span> <span class="nx">Animal</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'new species'</span>
+<span class="p">)</span>
+
+<span class="nx">findAnimal</span><span class="p">(</span><span class="k">new</span> <span class="nx">Python</span><span class="p">)</span> <span class="c1"># 'large snake'</span>
+<span class="nx">findAnimal</span><span class="p">(</span><span class="k">new</span> <span class="nx">Naja</span><span class="p">)</span> <span class="c1"># 'snake'</span>
+<span class="nx">findAnimal</span><span class="p">(</span><span class="k">new</span> <span class="nx">Frog</span><span class="p">)</span> <span class="c1"># 'new species'</span>
+</pre></div>
+
+<blockquote>
+<p>NB: <code>instanceof</code> is used as subtype checking. <a href="https://github.com/bramstein/funcy#patterns">Comparing</a> <code>element.constructor</code> will violates <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov Substitution Principle</a></p>
+</blockquote>
+
+<p>For core JavaScript datatype <code>Number</code>, <code>String</code>, <code>Boolean</code>, their corresponding primitive values are taken as matching elements.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="c1"># monoid like mappend</span>
+<span class="nv">append = </span><span class="nf">(a, b) -&gt;</span> <span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="p">],</span> <span class="nf">-&gt;</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nb">Number</span><span class="p">,</span> <span class="nb">Number</span><span class="p">],</span> <span class="nf">-&gt;</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span>
+  <span class="nx">Is</span> <span class="p">[</span><span class="nb">Array</span><span class="p">,</span> <span class="nb">Array</span><span class="p">],</span> <span class="nf">-&gt;</span> <span class="nx">a</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+<span class="p">)(</span><span class="nx">arguments</span><span class="p">)</span>
+</pre></div>
+
+<blockquote>
+<p>NB: Only in <code>In</code> case expression is <code>Type</code> pattern captured.</p>
+</blockquote>
+
+<h3>
+<a name="regular-expression" class="anchor" href="#regular-expression"><span class="octicon octicon-link"></span></a>Regular Expression</h3>
+
+<p>Regular Expression is matched against element. If a match is found, the match and its capturing group will be passed to the matched action.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">MAIL_REG = </span><span class="sr">/(.*?)@(.*?)\..*/</span>
+
+<span class="nv">mail = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="nx">MAIL_REG</span><span class="p">,</span> <span class="nf">(_, name, domain) -&gt;</span> <span class="p">{</span><span class="nx">name</span><span class="p">,</span> <span class="nx">domain</span><span class="p">}</span>
+  <span class="nx">Is</span> <span class="nx">_</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'no match'</span>
+<span class="p">)</span>
+
+<span class="nx">mail</span><span class="p">(</span><span class="s">'test@mail.com'</span><span class="p">)</span> <span class="c1"># {name: 'test', domain: 'mail'}</span>
+</pre></div>
+
+<blockquote>
+<p>NB: Regular Expression is only captured in <code>Is</code>.</p>
+</blockquote>
+
+<h3>
+<a name="case-class" class="anchor" href="#case-class"><span class="octicon octicon-link"></span></a>Case Class</h3>
+
+<p>Pat-mat mocks Scala's <code>case class</code> by the function <code>extract</code>.
+<em>Case classes are regular classes which exports their constructor parameters and which provide a recursive decomposition mechanism via pattern matching.</em>(<a href="http://www.scala-lang.org/old/node/107">source</a>)
+Applying <code>extract</code> to constructor function will return a equivalent constructor function that also doubles as case class pattern.
+With <code>new</code>, <strong>extracted</strong> function returns a new instance; without <code>new</code>, <strong>extracted</strong> function returns a case class pattern.</p>
+
+<p>Here is an example. This example uses Coffee's class syntax which is a natural fit for <code>Case Class</code>. (That's why Pat-Mat was written in Coffee)</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">Point = </span><span class="nx">extract</span> <span class="k">class</span> <span class="nx">Point</span>
+  <span class="nv">constructor: </span><span class="nf">(@x, @y) -&gt;</span>
+  <span class="c1"># more code</span>
+
+<span class="nv">takeY = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nx">$</span><span class="p">),</span> <span class="nf">(y) -&gt;</span> <span class="nx">y</span>
+  <span class="nx">Is</span> <span class="nx">_</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'no match'</span>
+<span class="p">)</span>
+
+<span class="c1"># a new Point instance</span>
+<span class="nx">takeY</span><span class="p">(</span><span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="c1"># 4</span>
+<span class="c1"># a pattern instance</span>
+<span class="nx">takeY</span><span class="p">(</span><span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="c1"># no match</span>
+<span class="c1"># because x fails to match</span>
+<span class="nx">takeY</span><span class="p">(</span><span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="c1"># no match</span>
+</pre></div>
+
+<p>If you are using JavaScript:</p>
+
+<div class="highlight highlight-js"><pre><span class="kd">function</span> <span class="nx">Point</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nx">x</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nx">y</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">Point</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="c1">// more code</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">Point</span> <span class="o">=</span> <span class="nx">extract</span><span class="p">(</span><span class="nx">Point</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">takeY</span> <span class="o">=</span> <span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span><span class="p">(</span><span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nx">$</span><span class="p">),</span> <span class="kd">function</span><span class="p">(</span><span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">y</span><span class="p">;</span>
+  <span class="p">}),</span>
+  <span class="nx">Is</span><span class="p">(</span><span class="nx">_</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">'no match'</span><span class="p">;</span>
+  <span class="p">})</span>
+<span class="p">);</span>
+
+<span class="nx">takeY</span><span class="p">(</span><span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">));</span> <span class="c1">// 4</span>
+<span class="nx">takeY</span><span class="p">(</span><span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">));</span> <span class="c1">// no match</span>
+</pre></div>
+
+<p>By default, Pat-Mat tries to annotate the constructor and to retrieve its parameter name.
+If the element to be matched is an instance of the constructor, then the element's fields with same names with parameter will be recursively matched against the pattern in the case class pattern. So the pattern <code>Point(3, $)</code> matches element <code>p</code> if <code>p.x == 3</code>, and then pass <code>p.y</code> to the action as argument if matched.</p>
+
+<p>However, automatic annotation does not work in compressed JavaScript, and fails to match if the fields in constructor are modified during initialization.
+For solution, please refer to <a href="https://github.com/HerringtonDarkholme/Pat-Mat#class-annotator">Class Annotator</a> section.</p>
+
+<h2>
+<a name="case-expression" class="anchor" href="#case-expression"><span class="octicon octicon-link"></span></a>Case Expression</h2>
+
+<p><code>Is/As/On</code>
+Object in JavaScript is a collection of unordered key-value pair. Though expressions like <code>{x: $, y: $}</code> will usually keep the order, Pat-Mat gives different <code>case expression</code> function to guarantee order.</p>
+
+<p><code>As</code> will apply arguments to the matched action, but variable binding needs to call <code>parameter</code> in pattern.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">argCount = </span><span class="nf">-&gt;</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span>
+<span class="nv">m = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="c1"># no captured group</span>
+  <span class="nx">As</span> <span class="sr">/test/</span>             <span class="p">,</span> <span class="nx">argCount</span>
+  <span class="c1"># function constructor will not be captured</span>
+  <span class="nx">As</span> <span class="nb">String</span>             <span class="p">,</span> <span class="nx">argCount</span>
+  <span class="c1"># will be captured because it invokes `parameter`</span>
+  <span class="nx">As</span> <span class="p">{</span><span class="nv">x: </span><span class="nx">$</span><span class="p">()}</span>           <span class="p">,</span> <span class="nx">argCount</span>
+  <span class="c1"># only capture the first element</span>
+  <span class="nx">As</span> <span class="p">[</span><span class="nx">$</span><span class="p">(),</span> <span class="nx">__</span> <span class="p">,</span> <span class="nb">Number</span><span class="p">]</span> <span class="p">,</span> <span class="nx">argCount</span>
+  <span class="c1"># `parameter` itself is not captured</span>
+  <span class="nx">As</span> <span class="nx">$</span><span class="p">,</span>                   <span class="nx">argCount</span>
+<span class="p">)</span>
+
+<span class="nx">m</span><span class="p">(</span><span class="s">'test'</span><span class="p">)</span> <span class="c1"># 0</span>
+<span class="nx">m</span><span class="p">(</span><span class="s">'ssss'</span><span class="p">)</span> <span class="c1"># 0</span>
+<span class="nx">m</span><span class="p">({</span><span class="nv">x: </span><span class="mi">5</span><span class="p">,</span> <span class="nv">y: </span><span class="mi">5</span><span class="p">})</span> <span class="c1"># 1</span>
+<span class="nx">m</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="c1"># 1</span>
+<span class="nx">m</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span> <span class="c1"># 0</span>
+</pre></div>
+
+<p><code>On</code> will pass an object of which the values are captured variables .<code>On</code> requires <code>NamedParameter</code>, which means <code>parameter</code> should be invoked with a name string as its first argument. The <code>name</code> of parameter will be the key of the object.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">m = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">On</span> <span class="nx">$</span><span class="p">(</span><span class="s">'n'</span><span class="p">,</span> <span class="nb">Number</span><span class="p">),</span> <span class="nf">(m) -&gt;</span> <span class="nx">m</span><span class="p">.</span><span class="nx">n</span> <span class="o">*</span> <span class="mi">2</span>
+  <span class="nx">On</span> <span class="p">{</span><span class="nv">x: </span><span class="nx">$</span><span class="p">(</span><span class="s">'x'</span><span class="p">),</span> <span class="nv">y: </span><span class="nx">$</span><span class="p">(</span><span class="s">'y'</span><span class="p">)},</span> <span class="nf">(m) -&gt;</span> <span class="nx">m</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">m</span><span class="p">.</span><span class="nx">y</span>
+  <span class="nx">On</span> <span class="nx">$</span><span class="p">(),</span> <span class="nf">-&gt;</span> <span class="nx">@unnamed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nx">m</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 4</span>
+<span class="nx">m</span><span class="p">({</span><span class="nv">x: </span><span class="mi">5</span><span class="p">,</span> <span class="nv">y: </span><span class="mi">5</span><span class="p">})</span> <span class="c1"># 10</span>
+<span class="nx">m</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="c1"># true</span>
+</pre></div>
+
+<p>Uninvoked <code>parameter</code> in <code>As</code> and <code>On</code>, and <code>parameter</code> instance other than <code>NamedParameter</code> will be stored in <code>this.unnamed</code> array and binded to matched function.</p>
+
+<blockquote>
+<p>NB: <code>Is</code> stands for <em>incremental</em>. <code>As</code> stands for <em>Array</em>. <code>On</code> stands for <em>Object</em>. The initials of these functions suggests their argument passing policies.</p>
+</blockquote>
+
+<h2>
+<a name="matched-action" class="anchor" href="#matched-action"><span class="octicon octicon-link"></span></a>Matched Action</h2>
+
+<p>Matched action is just plain function. How it receives arguments is dependent on the <code>case expression</code>, as specified before.</p>
+
+<p>Matched action has binded to matching objects to pass more information. You can access the whole match via <code>this.m</code> and variables that are not captured by <code>As</code>/<code>On</code> via <code>this.unnamed</code>.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">fib = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">As</span> <span class="mi">0</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="mi">0</span>
+  <span class="nx">As</span> <span class="mi">1</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="mi">1</span>
+  <span class="nx">As</span> <span class="nb">Number</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="nx">fib</span><span class="p">(</span><span class="nx">@m</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="nx">fib</span><span class="p">(</span><span class="nx">@m</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="nx">fib</span><span class="p">(</span><span class="nx">longProcess</span><span class="p">().</span><span class="nx">getData</span><span class="p">().</span><span class="nx">getMockNumber</span><span class="p">().</span><span class="nx">canBeBindedToThisM</span><span class="p">())</span>
+</pre></div>
+
+<h2>
+<a name="class-annotator" class="anchor" href="#class-annotator"><span class="octicon octicon-link"></span></a>Class Annotator</h2>
+
+<p><code>extract</code> is a function that returns a case class constructor.
+It will analyzes the original constructor function by <code>toString()</code> and extracts the fields.
+However, compressed JavaScript will lose the information. You can set the <code>unapply</code> static attribute of the <strong>constructor function</strong> to give Pat-Mat a hint.
+<code>unapply</code> can be <code>annotation</code>, an array of string that corresponds to the constructor's argument and instance fields.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">Point = </span><span class="nx">extract</span> <span class="k">class</span> <span class="nx">Point</span>
+  <span class="nv">constructor: </span><span class="nf">(longlongx, longlongy) -&gt;</span>
+    <span class="vi">@x = </span><span class="nx">longlongx</span>
+    <span class="vi">@y = </span><span class="nx">longlongy</span>
+
+  <span class="vi">@unapply = </span><span class="p">[</span><span class="s">'x'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">]</span>
+
+<span class="nv">p = </span><span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="c1"># now Pat-Mat will compare p.x and p.y</span>
+<span class="c1"># Point(3, 4) will match p</span>
+</pre></div>
+
+<p>If the fields are modified in constructor, you can set <code>unapply</code> to a <code>transform</code> function.
+<code>transform</code> function takes the element to be  matched as argument, and should return an objects with properties specified in <code>annotation</code>.
+<code>annotation</code> is just the array described above. If <code>unapply</code> is function, <code>annotation</code> is programatically found.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">UnitVector = </span><span class="nx">extract</span> <span class="k">class</span> <span class="nx">UnitVector</span>
+  <span class="nv">constructor: </span><span class="nf">(x, y) -&gt;</span>
+    <span class="nv">norm = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">(</span><span class="nx">x</span><span class="o">*</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="o">*</span><span class="nx">y</span><span class="p">)</span>
+    <span class="vi">@x = </span><span class="nx">x</span> <span class="o">/</span> <span class="nx">norm</span>
+    <span class="vi">@y = </span><span class="nx">y</span> <span class="o">/</span> <span class="nx">norm</span>
+
+  <span class="vi">@unapply = </span><span class="nf">(other) -&gt;</span>
+    <span class="nv">x = </span><span class="nx">other</span><span class="p">.</span><span class="nx">x</span>
+    <span class="nv">y = </span><span class="nx">other</span><span class="p">.</span><span class="nx">y</span>
+    <span class="nv">norm = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">(</span><span class="nx">x</span><span class="o">*</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="o">*</span><span class="nx">y</span><span class="p">)</span>
+    <span class="c1"># in this case you can also return</span>
+    <span class="c1"># new UnitVector(other.x, other.y)</span>
+    <span class="c1"># because the constructor is side-effect free</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="nv">x: </span><span class="nx">x</span> <span class="o">/</span> <span class="nx">norm</span>
+      <span class="nv">y: </span><span class="nx">y</span> <span class="o">/</span> <span class="nx">norm</span>
+    <span class="p">}</span>
+</pre></div>
+
+<p>Combining <code>annotation</code> and <code>transform</code> is okay.
+Set <code>unapply</code> to an object with <code>transform</code> and <code>annotation</code>.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">Circle = </span><span class="nx">extract</span> <span class="k">class</span> <span class="nx">Circle</span>
+  <span class="nv">constructor: </span><span class="nf">(longlongr) -&gt;</span>
+    <span class="vi">@r = </span><span class="nx">longlongr</span>
+  <span class="vi">@unapply = </span><span class="p">{</span>
+    <span class="nv">annotation: </span><span class="p">[</span><span class="s">'r'</span><span class="p">]</span>
+    <span class="nv">transform: </span><span class="nx">Match</span><span class="p">(</span>
+      <span class="c1"># only transform Circle/Point instance</span>
+      <span class="nx">Is</span> <span class="nx">Circle</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="nx">@m</span>
+      <span class="nx">Is</span> <span class="nx">Point</span><span class="p">(</span><span class="nx">$</span><span class="p">,</span> <span class="nx">$</span><span class="p">),</span> <span class="nf">(x, y) -&gt;</span>
+        <span class="p">{</span><span class="nv">r: </span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">(</span><span class="nx">x</span><span class="o">*</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span><span class="o">*</span><span class="nx">y</span><span class="p">)}</span>
+      <span class="nx">Is</span> <span class="nx">_</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="kc">null</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+
+<span class="nv">getRadius = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="nx">Circle</span><span class="p">(</span><span class="nx">$</span><span class="p">),</span> <span class="nf">(r) -&gt;</span> <span class="s">'radius: '</span> <span class="o">+</span> <span class="nx">r</span>
+<span class="p">)</span>
+<span class="nx">getRadius</span><span class="p">(</span><span class="k">new</span> <span class="nx">Circle</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span> <span class="c1"># radius: 5</span>
+<span class="nx">getRadius</span><span class="p">(</span><span class="k">new</span> <span class="nx">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="c1"># radius: 5</span>
+<span class="nx">getRadius</span><span class="p">({</span><span class="nv">r: </span><span class="mi">5</span><span class="p">})</span> <span class="c1"># throw NoMatchError</span>
+</pre></div>
+
+<p>If <code>transform</code> is defined, then the case class pattern can match any type, as long as the <code>transform</code>'s return value is not null.</p>
+
+<p>As illustrated above, <code>transform</code> can be implemented easily with Pat-Mat.</p>
+
+<h2>
+<a name="customized-extractor" class="anchor" href="#customized-extractor"><span class="octicon octicon-link"></span></a>Customized Extractor</h2>
+
+<p>Much similar to class annotator, customized extractor is constructed by passing an <code>unapply</code> object to <code>extract</code>.
+<code>unapply</code> should have <code>annotation</code> property and optional <code>transform</code> property.</p>
+
+<p>Attention: extractor is not a constructor function.</p>
+
+<pre><code>Circle = extract({
+  annotation: ['r']
+  transform: Match(
+    Is {r: Number}, -&gt; @m # duck typing
+    Is Point($, $), (x, y) -&gt;
+      {r: Math.sqrt(x*x + y*y)}
+    Is _, -&gt; null
+  )
+})
+
+getRadius = Match(
+  Is Circle($), (r) -&gt; 'radius: ' + r
+)
+
+getRadius(new Point(3, 4)) # radius: 5
+getRadius({r: 5}) # radius: 5
+getRadius(new Circle(5)) # TypeError, Circle is not a constructor function
+</code></pre>
+
+<h2>
+<a name="pattern-guard" class="anchor" href="#pattern-guard"><span class="octicon octicon-link"></span></a>Pattern Guard</h2>
+
+<p>Pattern guard is also supported by <code>guard</code> function.
+Pattern guard should immediately follow the pattern in case expression. Only one pattern can precede the guard, so no alternative pattern cannot be used.</p>
+
+<div class="highlight highlight-coffee"><pre><span class="nv">m = </span><span class="nx">Match</span><span class="p">(</span>
+  <span class="nx">Is</span> <span class="nb">Number</span><span class="p">,</span> <span class="nx">guard</span><span class="p">(</span><span class="nf">-&gt;</span> <span class="nx">@m</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="nf">-&gt;</span> <span class="s">'even'</span>
+  <span class="nx">Is</span> <span class="nb">Number</span><span class="p">,</span> <span class="nx">guard</span><span class="p">(</span><span class="nf">-&gt;</span> <span class="nx">@m</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="nf">-&gt;</span> <span class="s">'odd'</span>
+  <span class="nx">Is</span> <span class="nx">wildcard</span><span class="p">,</span> <span class="nf">-&gt;</span> <span class="s">'not integer'</span>
+<span class="p">)</span>
+<span class="nx">m</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># is 'even'</span>
+<span class="nx">m</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># is 'odd'</span>
+<span class="nx">m</span><span class="p">(</span><span class="s">'dd'</span><span class="p">)</span> <span class="c1"># is 'not integer'</span>
+</pre></div>
+
+<h1>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h1>
+
+<h2>
+<a name="start-match" class="anchor" href="#start-match"><span class="octicon octicon-link"></span></a>Start Match</h2>
+
+<h3>
+<a name="matchcaseexpressions---function" class="anchor" href="#matchcaseexpressions---function"><span class="octicon octicon-link"></span></a><code>Match(CaseExpressions...) -&gt; Function</code>
+</h3>
+
+<p>Take serveral <code>CaseExpression</code>s as arguments and return a function that matches element.
+If one argument is not <code>CaseExpression</code>, then a <code>TypeError</code> is thrown.
+If no <code>CaseExpression</code> is matched, then an <code>NoMatchError</code> is thrown.</p>
+
+<h2>
+<a name="generate-caseexpression" class="anchor" href="#generate-caseexpression"><span class="octicon octicon-link"></span></a>Generate CaseExpression</h2>
+
+<h3>
+<a name="ispatterns-function---caseexpression" class="anchor" href="#ispatterns-function---caseexpression"><span class="octicon octicon-link"></span></a><code>Is(Patterns..., Function) -&gt; CaseExpression</code>
+</h3>
+
+<h3>
+<a name="ispattern-guard-function---caseexpression" class="anchor" href="#ispattern-guard-function---caseexpression"><span class="octicon octicon-link"></span></a><code>Is(Pattern, Guard, Function) -&gt; CaseExpression</code>
+</h3>
+
+<p>The last argument should be a function for matched action. <code>Is</code> feeds captured variables to matched action as arguments sequentially.
+<code>Is</code> also captures Constructor pattern and RegExp pattern.
+And the whole matching element is binded to <code>this</code> keyword, you can access  by <code>this.m</code> in the function.</p>
+
+<h3>
+<a name="aspatterns-function---caseexpression" class="anchor" href="#aspatterns-function---caseexpression"><span class="octicon octicon-link"></span></a><code>As(Patterns..., Function) -&gt; CaseExpression</code>
+</h3>
+
+<h3>
+<a name="aspattern-guard-function---caseexpression" class="anchor" href="#aspattern-guard-function---caseexpression"><span class="octicon octicon-link"></span></a><code>As(Pattern, Guard, Function) -&gt; CaseExpression</code>
+</h3>
+
+<p>The last argument should be a function for matched action. <code>As</code> only captures patterns that is generated by calling <code>parameter</code>.
+So <code>As</code> does not capture Constructor pattern and RegExp pattern.
+And the whole matching element is binded to <code>this</code> keyword, you can access  by <code>this.m</code> in the function.
+If <code>parameter</code> occurs in patterns that is not called, they can be accessed by <code>this.unnamed</code> array in the function.</p>
+
+<h3>
+<a name="onpatterns-function---caseexpression" class="anchor" href="#onpatterns-function---caseexpression"><span class="octicon octicon-link"></span></a><code>On(Patterns..., Function) -&gt; CaseExpression</code>
+</h3>
+
+<h3>
+<a name="onpattern-guard-function---caseexpression" class="anchor" href="#onpattern-guard-function---caseexpression"><span class="octicon octicon-link"></span></a><code>On(Pattern, Guard, Function) -&gt; CaseExpression</code>
+</h3>
+
+<p>The last argument should be a function for matched action. <code>On</code> only captures patterns that is named parameter like <code>$('name', Pattern)</code>
+<code>On</code> does not capture Constructor pattern and RegExp pattern.
+And the whole matching element is binded to <code>this</code> keyword, you can access  by <code>this.m</code> in the function.
+If parameter is not named, they can be accessed by <code>this.unnamed</code> array in the function.</p>
+
+<h2>
+<a name="parameter-1" class="anchor" href="#parameter-1"><span class="octicon octicon-link"></span></a>Parameter</h2>
+
+<h3>
+<a name="parameter---parameter" class="anchor" href="#parameter---parameter"><span class="octicon octicon-link"></span></a><code>parameter() -&gt; Parameter</code>
+</h3>
+
+<h3>
+<a name="parameterpattern---parameter" class="anchor" href="#parameterpattern---parameter"><span class="octicon octicon-link"></span></a><code>parameter(Pattern) -&gt; Parameter</code>
+</h3>
+
+<h3>
+<a name="parameternamestring-pattern---namedparameter" class="anchor" href="#parameternamestring-pattern---namedparameter"><span class="octicon octicon-link"></span></a><code>parameter(nameString, Pattern) -&gt; NamedParameter</code>
+</h3>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
