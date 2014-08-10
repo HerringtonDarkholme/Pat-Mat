@@ -24,12 +24,12 @@ matchReg = (reg) ->
 decorateRegExpPrototype = ->
   RegExp::r = -> matchReg(this)
 
-decorateObjectPrototype = (name='Match') ->
-  Object::[name] = (args...) ->
+decoratePrototype = (name='Match') ->
+  String::[name] = Number::[name] = Boolean::[name] = Object::[name] = (args...) ->
     Match(args...)(this)
 
 module.exports = {
   matchReg
   decorateRegExpPrototype
-  decorateObjectPrototype
+  decoratePrototype
 }

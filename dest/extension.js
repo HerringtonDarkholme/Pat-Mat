@@ -1,4 +1,4 @@
-var Match, decorateObjectPrototype, decorateRegExpPrototype, extract, matchReg, _ref,
+var Match, decoratePrototype, decorateRegExpPrototype, extract, matchReg, _ref,
   __slice = [].slice;
 
 _ref = require('./api'), Match = _ref.Match, extract = _ref.extract;
@@ -34,11 +34,11 @@ decorateRegExpPrototype = function() {
   };
 };
 
-decorateObjectPrototype = function(name) {
+decoratePrototype = function(name) {
   if (name == null) {
     name = 'Match';
   }
-  return Object.prototype[name] = function() {
+  return String.prototype[name] = Number.prototype[name] = Boolean.prototype[name] = Object.prototype[name] = function() {
     var args;
     args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     return Match.apply(null, args)(this);
@@ -48,5 +48,5 @@ decorateObjectPrototype = function(name) {
 module.exports = {
   matchReg: matchReg,
   decorateRegExpPrototype: decorateRegExpPrototype,
-  decorateObjectPrototype: decorateObjectPrototype
+  decoratePrototype: decoratePrototype
 };
